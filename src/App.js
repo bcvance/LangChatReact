@@ -1,23 +1,19 @@
 import logo from './logo.svg';
 import './App.css';
+import Sidebar from './screens/Sidebar';
+import ConversationsProvider from './contexts/ConversationsProvider'
+import ContactsProvider from './contexts/ContactsProvider'
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className='d-flex' style={{ height: '100vh'}}>
+        {/* <ConversationsProvider>
+          <ContactsProvider> */}
+            <Sidebar />
+          {/* </ContactsProvider>
+        </ConversationsProvider> */}
+      </div>
     </div>
   );
 }
