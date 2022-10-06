@@ -7,17 +7,12 @@ import UserProvider from '../contexts/UserProvider'
 
 export const ProtectedRoute = (props) => {
     const { isLoggedIn } = useUsers()
-    const navigate = useNavigate()
 
         if (!isLoggedIn) {
             return <Navigate to='/login/' />
         }
         return (
-                <ConversationsProvider>
-                    <ContactsProvider>
-                        {props.children}
-                    </ContactsProvider>
-                </ConversationsProvider>
+                props.children
         )
 
 }

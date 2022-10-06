@@ -4,11 +4,21 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import UsersProvider from './contexts/UserProvider';
+import ConversationsProvider from './contexts/ConversationsProvider'
+import ContactsProvider from './contexts/ContactsProvider'
+import { useEffect } from 'react';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <UsersProvider>
+      <ConversationsProvider>
+        <ContactsProvider>
+          <App />
+        </ContactsProvider>
+      </ConversationsProvider>
+    </UsersProvider>
   </React.StrictMode>
 );
 

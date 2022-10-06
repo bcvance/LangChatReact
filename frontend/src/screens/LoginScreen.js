@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Message from '../components/Message';
 import { useConversations } from '../contexts/ConversationsProvider';
 
-function LoginScreen(props) {
+function LoginScreen() {
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
   const { activeUser, setActiveUser, setIsLoggedIn } = useUsers()
@@ -29,8 +29,7 @@ function LoginScreen(props) {
         setIsLoggedIn(true)
         setSuccess(true)
         localStorage.setItem('user', data)
-        
-      }
+    }
       else {
         setSuccess(false)
         setError(data.detail)
@@ -80,6 +79,9 @@ function LoginScreen(props) {
                 </Form>
             </Card.Body>
         </Card>
+        <div style={{position: 'absolute', top: '80%'}}>
+          <Link to='/register/' className='small text-secondary'>Create Account</Link>
+        </div>
     </Container>
     )
 }

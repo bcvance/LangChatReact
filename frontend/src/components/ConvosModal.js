@@ -13,7 +13,7 @@ function ConvosModal({show, setShow}) {
     const [myLanguage, setMyLanguage] = useState('English')
     const [learningLanguage, setLearningLanguage] = useState('English')
     const [username, setUsername] = useState('')
-    const { conversations, addConversation } = useConversations()
+    const { conversations, addConversation, saveConversationToLocalStorage } = useConversations()
     const { activeUser } = useUsers()
 
 
@@ -34,11 +34,14 @@ function ConvosModal({show, setShow}) {
         axios.post('http://127.0.0.1:8000/api/chat/', data)
         .then((response) => {
             data = response.data
-            // addConversation(data.room_id, data.username)
+            console.log(response.data)
+            addConversation(data.room_id, data.users)
+            saveConversationToLocalStorage(data.room_id, data.users)
         })
         .catch((error) => {
             console.log(error)
         })
+        handleClose()
     }
 
   return (

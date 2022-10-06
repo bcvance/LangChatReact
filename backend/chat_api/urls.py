@@ -9,4 +9,5 @@ urlpatterns = [
     path('conversations/', views.conversations, name='conversations'),
     path('messages/', views.messages, name='messages'),
     path('save_message/', views.save_message, name='save_message'),
+    path('register/', views.register_user, name='register'),
 ]

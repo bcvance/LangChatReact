@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import useLocalStorage from '../hooks/useLocalStorage'
 import { w3cwebsocket as W3CWebSocket } from 'websocket'
 import { useUsers } from './UserProvider';
@@ -16,7 +16,7 @@ export function ConversationsProvider(props) {
         return conversations[0].id
       }
       else {
-        return 0
+        return ''
       }
     })
     const [activeWebSocket, setActiveWebSocket] = useState('')
@@ -41,11 +41,18 @@ export function ConversationsProvider(props) {
 
     function addConversation(chat_id, users) {
         setConversations(prevConversations => {
-          return [...prevConversations, {chat_id: chat_id, users: users}]
+          return [...prevConversations, {id: chat_id, users: users}]
         })
     }
 
+    function saveConversationToLocalStorage(chat_id, users) {
+      let convosFromLocalStorage = localStorage.getItem('conversations')
+      convosFromLocalStorage = [...convosFromLocalStorage, {chat_id: chat_id, users: users}]
+      localStorage.setItem('conversations', convosFromLocalStorage)
+    }
+
     function addWebSocket(chat_id, user_id, username) {
+      console.log('called')
       setWebSocketsDict(prevWebSockets => {
         if (!(chat_id in prevWebSockets)) {
           prevWebSockets[chat_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${chat_id}/${user_id}/${username}/`)
@@ -107,6 +114,7 @@ export function ConversationsProvider(props) {
       conversations: conversations,
       setConversations: setConversations,
       addConversation: addConversation,
+      saveConversationToLocalStorage: saveConversationToLocalStorage,
       getConversations: getConversations,
       activeConvo: activeConvo,
       setActiveConvo: setActiveConvo,
@@ -120,6 +128,12 @@ export function ConversationsProvider(props) {
       setChatMessages: setChatMessages,
       getChatMessages: getChatMessages,
     }
+
+    useEffect(() => {
+      if ((activeConvo === '' && Object.keys(conversations).length > 0)) {
+        setActiveConvo(conversations[0].id)
+      }
+    })
 
   return (
     <ConversationsContext.Provider value={value}>

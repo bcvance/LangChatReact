@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.shortcuts import render
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .serializers import MyUserSerializer
+from .serializers import MyUserSerializer, MyUserSerializerWithToken
 from .models import *
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
@@ -32,15 +32,13 @@ class MyTokenObtainPairView(TokenObtainPairView):
 @api_view(['POST'])
 def register_user(request):
     data = request.data
-
     try:
         user = MyUser.objects.create(
-            first_name=data['name'],
-            username=data['email'],
+            username=data['username'],
             email=data['email'],
             password=make_password(data['password']),
         )
-        serializer = MyTokenObtainPairSerializer(user, many=False)
+        serializer = MyUserSerializerWithToken(user, many=False)
         return Response(serializer.data)
     except:
         message = {'detail':'User with this email already exists.'}

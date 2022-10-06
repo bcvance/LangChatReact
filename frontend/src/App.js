@@ -4,29 +4,29 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Container } from 'react-bootstrap';
 import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
+import RegisterScreen from './screens/RegisterScreen'
 import { ProtectedRoute } from './components/ProtectedRoute'
-import UsersProvider from './contexts/UserProvider';
-import ConversationsProvider from './contexts/ConversationsProvider'
-import ContactsProvider from './contexts/ContactsProvider'
+import { useUsers } from './contexts/UserProvider'
+import { useEffect } from 'react'
+
 
 function App() {
+  const { isLoggedIn } = useUsers()
+  useEffect(() => {
+    console.log(isLoggedIn)
+  })
   return (
-    <UsersProvider>
-      <ConversationsProvider>
-        <ContactsProvider>
           <Router>
             <Routes>
               <Route path='/' element={
-                // <ProtectedRoute>
+                <ProtectedRoute>
                   <HomeScreen />
-                // </ProtectedRoute>
+                </ProtectedRoute>
               } exact />
               <Route path='/login/' element={<LoginScreen />}/>
+              <Route path='/register/' element={<RegisterScreen />}/>
             </Routes>
-          </Router>
-        </ContactsProvider>
-      </ConversationsProvider>
-    </UsersProvider>
+          </Router>      
   );
 }
 

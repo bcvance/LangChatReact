@@ -20,7 +20,8 @@ function Conversations() {
 
 
   return (
-    <ListGroup variant='flush'>
+    <div style={{height: '90vh'}} className='d-flex flex-column overflow-auto'>
+      <ListGroup variant='flush'>
         {conversations.map((conversation, index) => (
             <ListGroup.Item key={conversation.id} onClick={() => changeActiveConvo(conversation.id, index)} className={itemClasses(conversation.id)}>
               <div className='d-flex justify-content-center flex-column align-items-center'>
@@ -28,7 +29,8 @@ function Conversations() {
               </div>
             </ListGroup.Item>
         ))}
-    </ListGroup>
+      </ListGroup>
+    </div>
   )
 }
 

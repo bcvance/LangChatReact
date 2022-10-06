@@ -17,15 +17,15 @@ function HomeScreen() {
   useEffect(() => {
     async function getData() {
       // get all conversations containing logged in user
-    const convosFromBackend = await getConversations(activeUser.id)
-    setConversations(convosFromBackend)
-    localStorage.setItem('conversations', JSON.stringify(convosFromBackend))
-    const chatMessagesFromBackend = await getChatMessages(activeUser.id)
-    setChatMessages(chatMessagesFromBackend)
-    localStorage.setItem('chatMessages', JSON.stringify(chatMessagesFromBackend))
-    conversations.map((conversation, index) => {
-      addWebSocket(conversation.id, activeUser.id, activeUser.username)
-    })
+      const convosFromBackend = await getConversations(activeUser.id)
+      setConversations(convosFromBackend)
+      localStorage.setItem('conversations', JSON.stringify(convosFromBackend))
+      const chatMessagesFromBackend = await getChatMessages(activeUser.id)
+      setChatMessages(chatMessagesFromBackend)
+      localStorage.setItem('chatMessages', JSON.stringify(chatMessagesFromBackend))
+      conversations.map((conversation, index) => {
+        addWebSocket(conversation.id, activeUser.id, activeUser.username)
+    }, [])
   }
   getData()
 }, [])
