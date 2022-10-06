@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import useLocalStorage from '../hooks/useLocalStorage'
 
 const UserContext = React.createContext();
@@ -9,10 +9,19 @@ export function useUsers() {
 
 export function UsersProvider(props) {
     const [activeUser, setActiveUser] = useLocalStorage('user', {})
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+    useEffect(() => {
+        if ((!isLoggedIn && Object.keys(activeUser).length > 0)) {
+            setIsLoggedIn(true)
+        }
+    })
 
     const value = {
         activeUser: activeUser,
-        setActiveUser: setActiveUser
+        setActiveUser: setActiveUser,
+        isLoggedIn: isLoggedIn,
+        setIsLoggedIn: setIsLoggedIn
       }
 
     return (

@@ -15,6 +15,7 @@ from django.http import JsonResponse
 
 
 # Create your views here.
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self,attrs):
         print(attrs)
@@ -65,6 +66,7 @@ def chat(request):
     else:
         print("no match")
         room = ChatRoom.objects.create()
+        room.websocket_url = f'ws://127.0.0.1:8000/ws/socket-server/{room.id}/'
         temp_user = TempUser.objects.create(username=username, knows=know_languages, learning=learning_languages, room_name=room)
         room.users.add(user)
         room.save()
@@ -80,8 +82,8 @@ def chat(request):
 @csrf_exempt
 @api_view(['POST'])
 def conversations(request):
-    username = request.data['username']
-    user = MyUser.objects.get(username=username)
+    user_id = request.data['user_id']
+    user = MyUser.objects.get(id=user_id)
     chats = []
     for chat in user.chats.all():
         chat_info = {}
@@ -89,3 +91,32 @@ def conversations(request):
         chat_info['users'] = [user.username for user in chat.users.all()]
         chats.append(chat_info)
     return Response(chats) 
+
+@csrf_exempt
+@api_view(['POST'])
+def messages(request):
+    user_id = request.data['user_id']
+    user = MyUser.objects.get(id=user_id)
+    user_messages = {}
+    for chat in user.chats.all():
+        chat_messages = []
+        for message in chat.messages.all().order_by('send_time'):
+            message_info = {'content': message.content, 'sender': message.sender.id, 'chat': message.chat.id}
+            chat_messages.append(message_info)
+        user_messages[chat.id] = chat_messages
+    return JsonResponse(user_messages, safe=False)
+
+@csrf_exempt
+@api_view(['POST'])
+def save_message(request):
+    content = request.data['content']
+    user_id = request.data['user_id']
+    chat_id = request.data['chat_id']
+    Message.objects.create(
+        content=content, 
+        sender = MyUser.objects.get(id=user_id),
+        chat = ChatRoom.objects.get(id=chat_id)
+        )
+    return Response({'detail': 'word saved successfully'}, status=status.HTTP_200_OK)
+    
+

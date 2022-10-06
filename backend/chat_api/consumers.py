@@ -1,3 +1,4 @@
+from email import message
 import json
 # from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.generic.websocket import WebsocketConsumer
@@ -5,12 +6,14 @@ from channels.db import database_sync_to_async
 from .models import ChatRoom, MyUser, TempUser
 from django.db.models.base import ObjectDoesNotExist
 from asgiref.sync import async_to_sync
+import urllib.parse
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
-        self.user_id = self.scope['session']['online_user_id']
+        self.user_id = self.scope['url_route']['kwargs']['user_id']
+        self.username = MyUser.objects.get(id=self.user_id).username
         self.user_group_name = f'user_{self.user_id}'
 
         async_to_sync(self.channel_layer.group_add)(
@@ -30,28 +33,30 @@ class ChatConsumer(WebsocketConsumer):
             {
                 'type': 'connection_message',
                 'message': 'connected',
-                'message_username': self.scope['session']['username'],
-                'message_user_id': self.scope['session']['online_user_id'],
+                'message_username': self.username,
+                'message_user_id': self.user_id,
             }
         )
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
+        print(text_data_json)
         message_username = text_data_json['message_username']
 
-        if 'type' in text_data_json:
-            if text_data_json['type'] == 'indiv_message':
-                message_user_id = text_data_json['message_user_id']
-                username = text_data_json['username']
-                async_to_sync(self.channel_layer.group_send)(
-                    f'user_{message_user_id}',
-                    {
-                        'type': 'indiv_message',
-                        'message_username': message_username,
-                        'username': username,
-                    }
+
+        if text_data_json['type'] == 'indiv_message':
+            message_user_id = text_data_json['message_user_id']
+            username = text_data_json['username']
+            async_to_sync(self.channel_layer.group_send)(
+                f'user_{message_user_id}',
+                {
+                    'type': 'indiv_message',
+                    'message_username': message_username,
+                    'username': username,
+                }
             )
         else:
+            print("message received")
             message = text_data_json['message']
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
@@ -103,7 +108,7 @@ class ChatConsumer(WebsocketConsumer):
             {
                 'type': 'chat_message',
                 'message': 'disconnected',
-                'message_username': self.scope['session']['username']
+                'message_username': self.username
             }
         )
         # delete chat group
@@ -120,11 +125,11 @@ class ChatConsumer(WebsocketConsumer):
 
 
     def delete_users_n_chats(self):
-        if OnlineUser.objects.filter(id = self.user_id).exists():
-            OnlineUser.objects.get(id = self.user_id).delete()
+        # if MyUser.objects.filter(id = self.user_id).exists():
+        #     MyUser.objects.get(id = self.user_id).delete()
         if "temp_user_id" in self.scope["session"]:
             if TempUser.objects.filter(id = self.scope["session"]["temp_user_id"]).exists():
                 TempUser.objects.get(id = self.scope["session"]["temp_user_id"]).delete()
-        if ChatRoom.objects.filter(id = self.room_name).exists():
-            ChatRoom.objects.get(id = self.room_name).delete()
+        # if ChatRoom.objects.filter(id = self.room_name).exists():
+        #     ChatRoom.objects.get(id = self.room_name).delete()
 

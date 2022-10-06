@@ -7,22 +7,26 @@ import LoginScreen from './screens/LoginScreen';
 import ConversationsProvider from './contexts/ConversationsProvider'
 import ContactsProvider from './contexts/ContactsProvider'
 import UserProvider from './contexts/UserProvider'
-import { useEffect } from 'react';
+import { ProtectedRoute } from './components/ProtectedRoute'
 
 function App() {
   return (
-    <ConversationsProvider>
+    <UserProvider>
+      <ConversationsProvider>
             <ContactsProvider>
-              <UserProvider>
               <Router>
                 <Routes>
-                  <Route path='/' element={<HomeScreen />} exact />
+                  <Route path='/' element={
+                    <ProtectedRoute>
+                      <HomeScreen />
+                    </ProtectedRoute>
+                  } exact />
                   <Route path='/login/' element={<LoginScreen />}/>
                 </Routes>
               </Router>
-              </UserProvider>
             </ContactsProvider>
         </ConversationsProvider>
+    </UserProvider>
   );
 }
 

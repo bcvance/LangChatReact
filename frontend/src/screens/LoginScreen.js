@@ -11,7 +11,7 @@ function LoginScreen(props) {
   const { activeUser, setActiveUser } = useUsers()
   const [success, setSuccess] = useState(true)
   const [error, setError] = useState('')
-  const { conversations, setConversations, getConversations } = useConversations()
+  const { conversations, setConversations, getConversations, setChatMessages, getChatMessages } = useConversations()
 
   useEffect(() => {
     console.log(conversations)
@@ -34,9 +34,11 @@ function LoginScreen(props) {
         setSuccess(true)
         localStorage.setItem('user', data)
         // get all conversations containing logged in user
-        const convosFromBackend = await getConversations(data.username)
+        const convosFromBackend = await getConversations(data.id)
         setConversations(convosFromBackend)
         localStorage.setItem('conversations', JSON.stringify(convosFromBackend))
+        const chatMessagesFromBackend = await getChatMessages(data.id)
+        localStorage.setItem('chatMessages', JSON.stringify(chatMessagesFromBackend))
       }
       else {
         setSuccess(false)

@@ -3,14 +3,14 @@ import { ListGroup } from 'react-bootstrap'
 import { useConversations } from '../contexts/ConversationsProvider'
 
 function Conversations() {
-    const value = useConversations()
-    const { conversations, activeTab, setActiveTab } = useConversations()
+    const { conversations, activeConvo, setActiveConvo, webSocketsDict, addWebSocket } = useConversations()
 
-    const changeActiveTab = (index) => {
-      setActiveTab(index)
+    const changeActiveConvo = (id, index) => {
+      setActiveConvo(id)
     }
-    const itemClasses = (index) => {
-      if (index === activeTab) {
+
+    const itemClasses = (id) => {
+      if (id === activeConvo) {
         return 'active'
       }
       else {
@@ -18,14 +18,11 @@ function Conversations() {
       }
     }
 
-    useEffect(() => {
-      console.log(activeTab)
-    })
 
   return (
     <ListGroup variant='flush'>
         {conversations.map((conversation, index) => (
-            <ListGroup.Item key={index} onClick={() => changeActiveTab(index)} className={itemClasses(index)}>
+            <ListGroup.Item key={conversation.id} onClick={() => changeActiveConvo(conversation.id, index)} className={itemClasses(conversation.id)}>
               <div className='d-flex justify-content-center flex-column align-items-center'>
                 <p className='small'>{conversation.users}</p>
               </div>

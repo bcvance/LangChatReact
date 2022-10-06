@@ -22,7 +22,15 @@ class MyUser(AbstractUser):
     default_knows_language = models.CharField(max_length=200, blank=True, null=True)
     default_learning_language = models.CharField(max_length=200, blank=True, null=True)
 
+
 class ChatRoom(models.Model):
     users = models.ManyToManyField(MyUser, related_name = 'chats')
+    websocket_url = models.URLField(blank=True, null=True)
+
+class Message(models.Model):
+    content = models.CharField(max_length=5000)
+    sender = models.ForeignKey('MyUser', on_delete = models.SET_NULL, null=True, related_name='sender')
+    chat = models.ForeignKey('ChatRoom', related_name='messages', on_delete=models.CASCADE)
+    send_time = models.DateTimeField(null=True, blank=True)
 
 

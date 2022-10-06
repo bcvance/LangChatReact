@@ -5,22 +5,19 @@ import { useConversations } from '../contexts/ConversationsProvider'
 
 function TopNav() {
     const navigate = useNavigate()
-    const { activeUser, setActiveUser } = useUsers()
-    const { setConversations } = useConversations()
-    const [loggedIn, setLoggedIn] = useState(() => {
-        if (Object.keys(activeUser).length > 0) {
-            return true
-        }
-        return false
-    })
+    const { activeUser, setActiveUser, isLoggedIn, setIsLoggedIn } = useUsers()
+    const { setConversations, setChatMessages } = useConversations()
+
 
     const handleLog = () => {
-        if (loggedIn) {
+        if (isLoggedIn) {
             localStorage.setItem('user', {})
             localStorage.setItem('conversations', [])
+            localStorage.setItem('chatMessages', {})
             setActiveUser({})
-            setLoggedIn(false)
+            setIsLoggedIn(false)
             setConversations([])
+            setChatMessages({})
         }
         else {
             navigate('/login/')
@@ -30,7 +27,7 @@ function TopNav() {
   return (
     <div style={{ padding: '10.75px' }}className='d-flex flex-column border-bottom align-items'>
         <a style={{fontSize: 'small', cursor: 'pointer'}} className='ms-auto me-2' onClick={handleLog}>
-            {loggedIn ? 'Log Out' : 'Log In'}
+            {isLoggedIn ? 'Log Out' : 'Log In'}
         </a>
     </div>
   )
