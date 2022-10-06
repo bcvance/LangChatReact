@@ -11,11 +11,16 @@ function TopNav() {
 
     const handleLog = () => {
         if (isLoggedIn) {
-            localStorage.setItem('user', {})
-            localStorage.setItem('conversations', [])
-            localStorage.setItem('chatMessages', {})
-            setActiveUser({})
+            console.log('14 executed')
             setIsLoggedIn(false)
+            console.log('16 executed')
+            localStorage.setItem('user', {})
+            console.log('18 executed')
+            localStorage.setItem('conversations', [])
+            console.log('20 executed')
+            localStorage.setItem('chatMessages', {})
+            console.log('22 executed')
+            setActiveUser({})
             setConversations([])
             setChatMessages({})
         }
@@ -25,8 +30,8 @@ function TopNav() {
     }
 
   return (
-    <div style={{ padding: '10.75px' }}className='d-flex flex-column border-bottom align-items'>
-        <a style={{fontSize: 'small', cursor: 'pointer'}} className='ms-auto me-2' onClick={handleLog}>
+    <div style={{ padding: '8.5px' }} className='border-bottom align-items text-end'>
+        <a style={{fontSize: 'small', cursor: 'pointer'}} className='ms-auto me-2 ' onClick={handleLog}>
             {isLoggedIn ? 'Log Out' : 'Log In'}
         </a>
     </div>

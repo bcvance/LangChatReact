@@ -9,9 +9,17 @@ export function useUsers() {
 
 export function UsersProvider(props) {
     const [activeUser, setActiveUser] = useLocalStorage('user', {})
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(() => {
+        if ((Object.keys(activeUser).length > 0)) {
+            return true
+        }
+        else {
+            return false
+        }
+    })
 
     useEffect(() => {
+        console.log(isLoggedIn)
         if ((!isLoggedIn && Object.keys(activeUser).length > 0)) {
             setIsLoggedIn(true)
         }

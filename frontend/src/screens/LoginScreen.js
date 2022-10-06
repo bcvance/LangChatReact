@@ -8,14 +8,9 @@ import { useConversations } from '../contexts/ConversationsProvider';
 function LoginScreen(props) {
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
-  const { activeUser, setActiveUser } = useUsers()
+  const { activeUser, setActiveUser, setIsLoggedIn } = useUsers()
   const [success, setSuccess] = useState(true)
   const [error, setError] = useState('')
-  const { conversations, setConversations, getConversations, setChatMessages, getChatMessages } = useConversations()
-
-  useEffect(() => {
-    console.log(conversations)
-  })
 
   const handleLogin = (async(e) => {
     e.preventDefault()
@@ -31,14 +26,10 @@ function LoginScreen(props) {
       let data = await response.json()
       if (response.ok) {
         setActiveUser(data)
+        setIsLoggedIn(true)
         setSuccess(true)
         localStorage.setItem('user', data)
-        // get all conversations containing logged in user
-        const convosFromBackend = await getConversations(data.id)
-        setConversations(convosFromBackend)
-        localStorage.setItem('conversations', JSON.stringify(convosFromBackend))
-        const chatMessagesFromBackend = await getChatMessages(data.id)
-        localStorage.setItem('chatMessages', JSON.stringify(chatMessagesFromBackend))
+        
       }
       else {
         setSuccess(false)

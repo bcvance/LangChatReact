@@ -57,18 +57,18 @@ export function ConversationsProvider(props) {
     function saveMessageToLocalStorage(user_id, chat_id, message) {
       let parsed = JSON.parse(localStorage.getItem('chatMessages'))
       if (chat_id in chatMessages) {
-        chatMessages[chat_id].push({message: message, sender_id: user_id})
+        chatMessages[chat_id].push({content: message, sender: user_id})
       }
       else {
-        chatMessages[chat_id] = [{message: message, sender_id: user_id}]
+        chatMessages[chat_id] = [{content: message, sender: user_id}]
       }
 
       if (chat_id in parsed) {
-        parsed[chat_id].push({message: message, sender_id: user_id})
+        parsed[chat_id].push({content: message, sender: user_id})
         localStorage.setItem('chatMessages', JSON.stringify(parsed))
       }
       else {
-        parsed[chat_id] = [{message: message, sender_id: user_id}]
+        parsed[chat_id] = [{content: message, sender: user_id}]
         localStorage.setItem('chatMessages', JSON.stringify(parsed))
       }
     }

@@ -23,7 +23,6 @@ function ConversationPanel() {
     }
 
     const handleSendMessage = (e) => {
-        console.log('handling send message')
         e.preventDefault()
         const content = e.target.value
         thisWebSocket.send(
@@ -40,32 +39,31 @@ function ConversationPanel() {
     }
 
     useEffect(() => {
-        console.log('chat messages:')
+        console.log(activeConvo)
         console.log(currentMessages)
         if (thisWebSocket) {
-            console.log('there is websocket')
             thisWebSocket.onmessage = (message) => {
-                console.log('received message')
                 const messageData = JSON.parse(message.data)
-                console.log(messageData)
             }
         }
+        const messageBox = document.getElementById('message-box')
+        messageBox.scrollTop = messageBox.scrollHeight
         
     })
     
   return (
-    <div style={{ height: '100vh'}} className='d-flex flex-grow-1 flex-column'>
+    <div style={{ height: '100vh'}} className='d-flex flex-column'>
         <TopNav />
         
-        <div className='d-flex' style={{height: '100%'}}>
-            <div>
+        <div className='flex-grow-1' style={{height: '90vh', position: 'relative'}}>
+            <div id='message-box' style={{maxHeight: '89%'}} className='overflow-auto d-flex flex-column'>
                 {currentMessages.map((message, index) => (
                     <MessageBubble key={index} message={message} />
                 ))}
             </div>
-            <div id='input' style={{width: '100%'}} className='align-self-end'>
+            <div id='input' style={{width: '100%', position: 'absolute', bottom:'0'}} className='align-self-end'>
                 <Form className='' style={{width: '100%'}} onSubmit={handleSendMessage}>
-                    <Row className='m-3'>
+                    <Row className='mx-1 my-1'>
                         <Col style={{flexGrow: '11'}} className='m-auto'>
                             <Form.Control value={message} className='' style={{borderRadius: '40px'}} type='text' name='message' placeholder='Type message here.' onChange={(e) => updateMessage(e)} />
                         </Col>

@@ -34,7 +34,7 @@ function Sidebar() {
                     <Contacts />
                 </Tab.Pane>
             </Tab.Content>
-            <Button className='p-2 text-light bg-primary' onClick={() => handleShow(activeTab)}>
+            <Button style={{position: 'absolute', bottom: '0', width: '250px', zIndex: '100'}} className='p-2 text-light bg-primary my-1' onClick={() => handleShow(activeTab)}>
                 New {activeTab === 'conversations' ? 'Conversation' : 'Contact'}
             </Button>
         </Tab.Container>
