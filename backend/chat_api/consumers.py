@@ -12,19 +12,12 @@ class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
-        self.user_id = self.scope['url_route']['kwargs']['user_id']
-        self.username = MyUser.objects.get(id=self.user_id).username
-        self.user_group_name = f'user_{self.user_id}'
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
             self.channel_name
         )
         
-        async_to_sync(self.channel_layer.group_add)(
-            self.user_group_name,
-            self.channel_name
-        )
 
         self.accept()
 
@@ -33,8 +26,6 @@ class ChatConsumer(WebsocketConsumer):
             {
                 'type': 'connection_message',
                 'message': 'connected',
-                'message_username': self.username,
-                'message_user_id': self.user_id,
             }
         )
 
@@ -42,7 +33,7 @@ class ChatConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
         print(text_data_json)
         message_username = text_data_json['message_username']
-
+        message_user_id = text_data_json['message_user_id']
 
         if text_data_json['type'] == 'indiv_message':
             message_user_id = text_data_json['message_user_id']
@@ -55,6 +46,18 @@ class ChatConsumer(WebsocketConsumer):
                     'username': username,
                 }
             )
+        elif text_data_json['type'] == 'id_message':
+            print('id message received')
+            self.user_id = text_data_json['user_id']
+            self.username = message_username
+            self.user_group_name = f'user_{self.username}'
+            print(self.username, self.user_id)
+
+            async_to_sync(self.channel_layer.group_add)(
+                self.user_group_name,
+                self.channel_name
+        )            
+
         else:
             print("message received")
             message = text_data_json['message']
@@ -63,30 +66,33 @@ class ChatConsumer(WebsocketConsumer):
                 {
                     'type': 'chat_message',
                     'message_username': message_username,
+                    'message_user_id': message_user_id,
                     'message': message,
+                    'chat_id': self.room_name,
                 }
             )
 
     def chat_message(self, event):
+        print(event)
         message = event['message']
         message_username = event['message_username']
+        message_user_id = event['message_user_id']
+        chat_id = event['chat_id']
 
         self.send(text_data=json.dumps({
             'type': 'chat',
             'message': message,
             'message_username': message_username,
+            'message_user_id': message_user_id,
+            'chat_id': chat_id
         }))
 
     def connection_message(self, event):
         message = event['message']
-        message_username = event['message_username']
-        message_user_id = event['message_user_id']
 
         self.send(text_data=json.dumps({
             'type': 'connection',
             'message': message,
-            'message_username': message_username,
-            'message_user_id': message_user_id,
         }))
     
     def indiv_message(self, event):
@@ -108,7 +114,8 @@ class ChatConsumer(WebsocketConsumer):
             {
                 'type': 'chat_message',
                 'message': 'disconnected',
-                'message_username': self.username
+                'message_username': self.username,
+                'message_user_id': self.user_id
             }
         )
         # delete chat group

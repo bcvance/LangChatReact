@@ -13,7 +13,7 @@ function ConversationPanel() {
     const updateMessage = (e) => {
         setMessage(e.target.value)
     }
-    const currentMessages = (activeConvo in chatMessages) ? chatMessages[activeConvo] : []
+    let currentMessages = (activeConvo in chatMessages) ? chatMessages[activeConvo] : []
 
     // get information (object) of active conversation
     for (let i=0; i<conversations.length; i++) {
@@ -24,7 +24,6 @@ function ConversationPanel() {
 
     const handleSendMessage = (e) => {
         e.preventDefault()
-        const content = e.target.value
         thisWebSocket.send(
             JSON.stringify({
                 type: 'message', 
@@ -33,23 +32,26 @@ function ConversationPanel() {
                 message_user_id: activeUser.id
             })
         )
-        saveMessageToLocalStorage(activeUser.id, activeConvo, message)
         saveMessageToDatabase(activeUser.id, activeConvo, message)
         setMessage('')
     }
 
+    
+
     useEffect(() => {
-        console.log(activeConvo)
-        console.log(currentMessages)
+        console.log('rerendered')
+        currentMessages = (activeConvo in chatMessages) ? chatMessages[activeConvo] : []
+
+
         if (thisWebSocket) {
             thisWebSocket.onmessage = (message) => {
                 const messageData = JSON.parse(message.data)
+                saveMessageToLocalStorage(messageData.message_user_id, messageData.chat_id, messageData.message)
             }
         }
         const messageBox = document.getElementById('message-box')
         messageBox.scrollTop = messageBox.scrollHeight
-        
-    })
+    }, [chatMessages])
     
   return (
     <div style={{ height: '100vh'}} className='d-flex flex-column'>

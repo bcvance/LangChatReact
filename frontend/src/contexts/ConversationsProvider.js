@@ -55,7 +55,15 @@ export function ConversationsProvider(props) {
       console.log('called')
       setWebSocketsDict(prevWebSockets => {
         if (!(chat_id in prevWebSockets)) {
-          prevWebSockets[chat_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${chat_id}/${user_id}/${username}/`)
+          prevWebSockets[chat_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${chat_id}/`)
+          prevWebSockets[chat_id].onopen = (e) => {
+            prevWebSockets[chat_id].send(JSON.stringify({
+              'type': 'id_message',
+              'user_id': user_id,
+              'message_username': username,
+              'message_user_id': user_id
+            }))
+          }
         }
         return prevWebSockets
       })
@@ -63,13 +71,22 @@ export function ConversationsProvider(props) {
 
     function saveMessageToLocalStorage(user_id, chat_id, message) {
       let parsed = JSON.parse(localStorage.getItem('chatMessages'))
+      // update state
       if (chat_id in chatMessages) {
-        chatMessages[chat_id].push({content: message, sender: user_id})
+        setChatMessages((prevChatMessages) => {
+          prevChatMessages[chat_id] = [...prevChatMessages[chat_id], {content: message, sender: user_id}]
+          return prevChatMessages
+        })
       }
       else {
-        chatMessages[chat_id] = [{content: message, sender: user_id}]
+        setChatMessages((prevChatMessages) => {
+          prevChatMessages[chat_id] = [{content: message, sender: user_id}]
+          return prevChatMessages
+        })
       }
+      console.log(chatMessages)
 
+      // update localStorage
       if (chat_id in parsed) {
         parsed[chat_id].push({content: message, sender: user_id})
         localStorage.setItem('chatMessages', JSON.stringify(parsed))
