@@ -5,9 +5,10 @@ import { useConversations } from '../contexts/ConversationsProvider'
 import { useUsers } from '../contexts/UserProvider'
 import MessageBubble from './MessageBubble'
 
+
 function ConversationPanel() {
     const { conversations, activeConvo, setActiveConvo, webSocketsDict, saveMessageToLocalStorage, saveMessageToDatabase, chatMessages } = useConversations()
-    const thisWebSocket = webSocketsDict[activeConvo]
+    let thisWebSocket = webSocketsDict[activeConvo]
     const { activeUser } = useUsers()
     const [message, setMessage] = useState('')
     const updateMessage = (e) => {
@@ -23,6 +24,7 @@ function ConversationPanel() {
     }
 
     const handleSendMessage = (e) => {
+        console.log('message sent')
         e.preventDefault()
         thisWebSocket.send(
             JSON.stringify({
@@ -39,14 +41,22 @@ function ConversationPanel() {
     
 
     useEffect(() => {
-        console.log('rerendered')
+        // console.log('rerendered')
         currentMessages = (activeConvo in chatMessages) ? chatMessages[activeConvo] : []
+        // console.log(activeConvo)
+        // console.log(currentMessages)
+        thisWebSocket = webSocketsDict[activeConvo]
 
 
-        if (thisWebSocket) {
-            thisWebSocket.onmessage = (message) => {
-                const messageData = JSON.parse(message.data)
-                saveMessageToLocalStorage(messageData.message_user_id, messageData.chat_id, messageData.message)
+        if (Object.keys(webSocketsDict).length > 0) {
+            for (const convoId in webSocketsDict) {
+                webSocketsDict[convoId].onmessage = (message) => {
+                    const messageData = JSON.parse(message.data)
+                    // console.log(messageData)
+                    if (!(messageData.type === 'id_message')) {
+                        saveMessageToLocalStorage(messageData.message_user_id, messageData.chat_id, messageData.message)
+                    }
+                }
             }
         }
         const messageBox = document.getElementById('message-box')

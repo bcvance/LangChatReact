@@ -66,6 +66,7 @@ def chat(request):
         room = ChatRoom.objects.create()
         room.websocket_url = f'ws://127.0.0.1:8000/ws/socket-server/{room.id}/'
         temp_user = TempUser.objects.create(username=username, knows=know_languages, learning=learning_languages, room_name=room)
+        print(temp_user.id)
         room.users.add(user)
         room.save()
         request.session["temp_user_id"] = temp_user.id

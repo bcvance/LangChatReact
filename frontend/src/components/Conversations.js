@@ -3,9 +3,9 @@ import { ListGroup } from 'react-bootstrap'
 import { useConversations } from '../contexts/ConversationsProvider'
 
 function Conversations() {
-    const { conversations, activeConvo, setActiveConvo, webSocketsDict, addWebSocket } = useConversations()
-
+    const { conversations, setConversations, activeConvo, setActiveConvo, webSocketsDict, addWebSocket } = useConversations()
     const changeActiveConvo = (id, index) => {
+      console.log('convo changed')
       setActiveConvo(id)
     }
 
@@ -17,7 +17,6 @@ function Conversations() {
         return ''
       }
     }
-
 
   return (
     <div style={{height: '90vh'}} className='d-flex flex-column overflow-auto'>

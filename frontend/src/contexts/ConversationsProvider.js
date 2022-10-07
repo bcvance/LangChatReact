@@ -3,7 +3,7 @@ import useLocalStorage from '../hooks/useLocalStorage'
 import { w3cwebsocket as W3CWebSocket } from 'websocket'
 import { useUsers } from './UserProvider';
 
-const ConversationsContext = React.createContext();
+export const ConversationsContext = React.createContext();
 
 export function useConversations() {
   return useContext(ConversationsContext)
@@ -70,31 +70,40 @@ export function ConversationsProvider(props) {
     }
 
     function saveMessageToLocalStorage(user_id, chat_id, message) {
+      console.log('save mesage called')
       let parsed = JSON.parse(localStorage.getItem('chatMessages'))
       // update state
       if (chat_id in chatMessages) {
         setChatMessages((prevChatMessages) => {
-          prevChatMessages[chat_id] = [...prevChatMessages[chat_id], {content: message, sender: user_id}]
-          return prevChatMessages
+          // create deep copy of prevChatMessages so that state change is registered and 
+          // child components rerender
+          // IMPORTANT: must make deep copy first and THEN alter values on deep copy, 
+          // as oppposed to altering prevChatMessages first and then making copy
+          const newMessages = {...prevChatMessages}
+          newMessages[chat_id] = [...newMessages[chat_id], {content: message, sender: user_id}]
+          console.log('in set chat')
+          console.log(newMessages)
+          return newMessages
         })
       }
       else {
         setChatMessages((prevChatMessages) => {
           prevChatMessages[chat_id] = [{content: message, sender: user_id}]
-          return prevChatMessages
+          const newMessages = {...prevChatMessages}
+          return newMessages
         })
       }
-      console.log(chatMessages)
+      //console.log(chatMessages)
 
       // update localStorage
-      if (chat_id in parsed) {
-        parsed[chat_id].push({content: message, sender: user_id})
-        localStorage.setItem('chatMessages', JSON.stringify(parsed))
-      }
-      else {
-        parsed[chat_id] = [{content: message, sender: user_id}]
-        localStorage.setItem('chatMessages', JSON.stringify(parsed))
-      }
+      // if (chat_id in parsed) {
+      //   parsed[chat_id].push({content: message, sender: user_id})
+      //   localStorage.setItem('chatMessages', JSON.stringify(parsed))
+      // }
+      // else {
+      //   parsed[chat_id] = [{content: message, sender: user_id}]
+      //   localStorage.setItem('chatMessages', JSON.stringify(parsed))
+      // }
     }
 
     async function saveMessageToDatabase(userId, chatId, content) {
