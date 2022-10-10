@@ -61,7 +61,7 @@ function ConversationPanel() {
         }
         const messageBox = document.getElementById('message-box')
         messageBox.scrollTop = messageBox.scrollHeight
-    }, [chatMessages])
+    }, [currentMessages])
     
   return (
     <div style={{ height: '100vh'}} className='d-flex flex-column'>
@@ -70,7 +70,7 @@ function ConversationPanel() {
         <div className='flex-grow-1' style={{height: '90vh', position: 'relative'}}>
             <div id='message-box' style={{maxHeight: '89%'}} className='overflow-auto d-flex flex-column'>
                 {currentMessages.map((message, index) => (
-                    <MessageBubble key={index} message={message} />
+                    <MessageBubble key={index} message={message} index={index} />
                 ))}
             </div>
             <div id='input' style={{width: '100%', position: 'absolute', bottom:'0'}} className='align-self-end'>

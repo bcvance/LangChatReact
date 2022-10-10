@@ -60,7 +60,8 @@ function LoginScreen() {
 
   return(
     <Container className='d-flex flex-column align-items-center' style={{height:'100vh'}}>
-        <Card style={{ width: '25rem', margin: 'auto'}} className='align-middle'>
+      <div style={{margin: 'auto'}} className='d-flex flex-column align-items-center'>
+      <Card style={{ width: '25rem'}} className='align-middle'>
             <Card.Body>
               <Card.Title><h5 className='text-center'>Login</h5></Card.Title>
               {(error.length > 0) && <Message variant='danger'>{error}</Message>}
@@ -79,9 +80,10 @@ function LoginScreen() {
                 </Form>
             </Card.Body>
         </Card>
-        <div style={{position: 'absolute', top: '80%'}}>
+        <div>
           <Link to='/register/' className='small text-secondary'>Create Account</Link>
         </div>
+      </div>
     </Container>
     )
 }

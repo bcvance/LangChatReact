@@ -79,7 +79,8 @@ function RegisterScreen() {
 
   return (
     <Container className='d-flex flex-column align-items-center' style={{height:'100vh'}}>
-        <Card style={{ width: '25rem', margin: 'auto'}} className='align-middle'>
+      <div style={{margin: 'auto'}} className='d-flex flex-column align-items-center'>
+      <Card style={{ width: '25rem', margin: 'auto'}} className='align-middle'>
             <Card.Body>
               <Card.Title><h5 className='text-center'>Login</h5></Card.Title>
               {(error.length > 0) && <Message variant='danger'>{error}</Message>}
@@ -106,9 +107,10 @@ function RegisterScreen() {
                 </Form>
             </Card.Body>
         </Card>
-        <div style={{position: 'absolute', top: '96.5%'}}>
+        <div>
           <p className='small text-secondary'>Already have an account? <Link to='/login/' className='small text-secondary'>Login.</Link></p>
         </div>
+      </div>
     </Container>
   )
 }

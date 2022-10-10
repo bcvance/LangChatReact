@@ -51,6 +51,14 @@ export function ConversationsProvider(props) {
       localStorage.setItem('conversations', convosFromLocalStorage)
     }
 
+    function deleteConvoFromLocalStorage(chat_id) {
+      return
+    }
+
+    function deleteConvoFromDatabase(chat_id) {
+      return
+    }
+
     function addWebSocket(chat_id, user_id, username) {
       console.log('called')
       setWebSocketsDict(prevWebSockets => {
