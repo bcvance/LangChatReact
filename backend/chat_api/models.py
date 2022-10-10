@@ -1,11 +1,12 @@
+from email.policy import default
 from django.db import models
+from datetime import datetime
 
-# Create your models here.
 from unittest.util import _MAX_LENGTH
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
-# Create your models here.
 from django.db import models
 
 # Create your models here.
@@ -31,6 +32,12 @@ class Message(models.Model):
     content = models.CharField(max_length=5000)
     sender = models.ForeignKey('MyUser', on_delete = models.SET_NULL, null=True, related_name='sender')
     chat = models.ForeignKey('ChatRoom', related_name='messages', on_delete=models.CASCADE)
-    send_time = models.DateTimeField(null=True, blank=True)
+    send_time = models.DateTimeField(default=datetime.now)
+
+    def save(self, *args, **kwargs):
+        '''On save, update timestamps'''
+        if not self.id:
+            self.send_time = timezone.now()
+            return super(Message, self).save(*args, **kwargs)
 
 

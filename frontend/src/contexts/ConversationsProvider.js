@@ -72,6 +72,8 @@ export function ConversationsProvider(props) {
     function saveMessageToLocalStorage(user_id, chat_id, message) {
       console.log('save mesage called')
       let parsed = JSON.parse(localStorage.getItem('chatMessages'))
+      const date = new Date()
+
       // update state
       if (chat_id in chatMessages) {
         setChatMessages((prevChatMessages) => {
@@ -80,7 +82,8 @@ export function ConversationsProvider(props) {
           // IMPORTANT: must make deep copy first and THEN alter values on deep copy, 
           // as oppposed to altering prevChatMessages first and then making copy
           const newMessages = {...prevChatMessages}
-          newMessages[chat_id] = [...newMessages[chat_id], {content: message, sender: user_id}]
+          console.log(newMessages)
+          newMessages[chat_id] = [...newMessages[chat_id], {content: message, sender: user_id, chat: activeConvo, send_time: date.toISOString()}]
           console.log('in set chat')
           console.log(newMessages)
           return newMessages
@@ -88,8 +91,8 @@ export function ConversationsProvider(props) {
       }
       else {
         setChatMessages((prevChatMessages) => {
-          prevChatMessages[chat_id] = [{content: message, sender: user_id}]
           const newMessages = {...prevChatMessages}
+          newMessages[chat_id] = [{content: message, sender: user_id, chat: activeConvo, send_time: date.toISOString()}]
           return newMessages
         })
       }

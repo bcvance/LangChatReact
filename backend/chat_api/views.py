@@ -12,6 +12,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from datetime import date
+
+import json
 
 
 # Create your views here.
@@ -100,7 +103,12 @@ def messages(request):
     for chat in user.chats.all():
         chat_messages = []
         for message in chat.messages.all().order_by('send_time'):
-            message_info = {'content': message.content, 'sender': message.sender.id, 'chat': message.chat.id}
+            message_info = {
+                'content': message.content, 
+                'sender': message.sender.id, 
+                'chat': message.chat.id, 
+                'send_time': message.send_time.isoformat()
+                }
             chat_messages.append(message_info)
         user_messages[chat.id] = chat_messages
     return JsonResponse(user_messages, safe=False)
@@ -111,11 +119,13 @@ def save_message(request):
     content = request.data['content']
     user_id = request.data['user_id']
     chat_id = request.data['chat_id']
-    Message.objects.create(
+    new_message = Message(
         content=content, 
         sender = MyUser.objects.get(id=user_id),
         chat = ChatRoom.objects.get(id=chat_id)
         )
+    new_message.save()
+
     return Response({'detail': 'word saved successfully'}, status=status.HTTP_200_OK)
     
 
