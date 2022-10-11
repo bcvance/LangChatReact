@@ -13,7 +13,7 @@ export function ConversationsProvider(props) {
     const [conversations, setConversations] = useLocalStorage('conversations', [])
     const [activeConvo, setActiveConvo] = useState(() => {
       if (Object.keys(conversations).length > 0) {
-        return conversations[0].id
+        return conversations[0].shared_id
       }
       else {
         return ''
@@ -39,33 +39,56 @@ export function ConversationsProvider(props) {
       }
     }
 
-    function addConversation(chat_id, users) {
+    function addConversation(data) {
         setConversations(prevConversations => {
-          return [...prevConversations, {id: chat_id, users: users}]
+          return [...prevConversations, {id: data.room_id, user: data.user, shared_id: data.shared_id}]
         })
     }
 
-    function saveConversationToLocalStorage(chat_id, users) {
+    function saveConversationToLocalStorage(data) {
       let convosFromLocalStorage = localStorage.getItem('conversations')
-      convosFromLocalStorage = [...convosFromLocalStorage, {chat_id: chat_id, users: users}]
+      convosFromLocalStorage = [...convosFromLocalStorage, {chat_id: data.chat_id, user: data.user, shared_id: data.shared_id}]
       localStorage.setItem('conversations', convosFromLocalStorage)
     }
 
-    function deleteConvoFromLocalStorage(chat_id) {
-      return
+    function deleteConvo(index) {
+      setConversations(prevConversations => {
+        prevConversations.splice(index, 1)
+        return prevConversations
+      })
     }
 
-    function deleteConvoFromDatabase(chat_id) {
-      return
+    function deleteConvoFromLocalStorage(index) {
+      let convosFromLocalStorage = JSON.parse(localStorage.getItem('conversations'))
+      convosFromLocalStorage.splice(index, 1)
+      localStorage.setItem('conversations', JSON.stringify(convosFromLocalStorage))
+
     }
 
-    function addWebSocket(chat_id, user_id, username) {
+    async function deleteConvoFromDatabase(chat_id) {
+      let url = 'http://127.0.0.1:8000/api/delete_convo/'
+      try{
+        let response = await fetch(url, {
+          method: 'POST',
+          body: JSON.stringify({'chat_id': chat_id}),
+          headers: {'Content-Type': 'application/json'}
+        })
+        // list of js objects, each object being a conversation
+        let data = await response.json()
+        return data
+      }catch(e) {
+        return e
+      }
+    }
+
+    function addWebSocket(shared_id, user_id, username) {
       console.log('called')
       setWebSocketsDict(prevWebSockets => {
-        if (!(chat_id in prevWebSockets)) {
-          prevWebSockets[chat_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${chat_id}/`)
-          prevWebSockets[chat_id].onopen = (e) => {
-            prevWebSockets[chat_id].send(JSON.stringify({
+        if (!(shared_id in prevWebSockets)) {
+          console.log('creating socket')
+          prevWebSockets[shared_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${shared_id}/`)
+          prevWebSockets[shared_id].onopen = (e) => {
+            prevWebSockets[shared_id].send(JSON.stringify({
               'type': 'id_message',
               'user_id': user_id,
               'message_username': username,
@@ -77,8 +100,8 @@ export function ConversationsProvider(props) {
       })
     }
 
-    function saveMessageToLocalStorage(user_id, chat_id, message) {
-      console.log('save mesage called')
+    function saveMessageToLocalStorage(user_id, chat_id, message, shared_id) {
+      console.log('save message called')
       let parsed = JSON.parse(localStorage.getItem('chatMessages'))
       const date = new Date()
 
@@ -91,7 +114,7 @@ export function ConversationsProvider(props) {
           // as oppposed to altering prevChatMessages first and then making copy
           const newMessages = {...prevChatMessages}
           console.log(newMessages)
-          newMessages[chat_id] = [...newMessages[chat_id], {content: message, sender: user_id, chat: activeConvo, send_time: date.toISOString()}]
+          newMessages[chat_id] = [...newMessages[chat_id], {content: message, sender: user_id, chat: activeConvo, send_time: date.toISOString(), shared_id: shared_id}]
           console.log('in set chat')
           console.log(newMessages)
           return newMessages
@@ -100,7 +123,7 @@ export function ConversationsProvider(props) {
       else {
         setChatMessages((prevChatMessages) => {
           const newMessages = {...prevChatMessages}
-          newMessages[chat_id] = [{content: message, sender: user_id, chat: activeConvo, send_time: date.toISOString()}]
+          newMessages[chat_id] = [{content: message, sender: user_id, chat: activeConvo, send_time: date.toISOString(), shared_id: shared_id}]
           return newMessages
         })
       }
@@ -117,12 +140,12 @@ export function ConversationsProvider(props) {
       // }
     }
 
-    async function saveMessageToDatabase(userId, chatId, content) {
+    async function saveMessageToDatabase(userId, chatId, content, sharedId) {
       let url = 'http://127.0.0.1:8000/api/save_message/'
       try {
         let response = await fetch(url, {
           method: 'POST',
-          body: JSON.stringify({'user_id': userId, 'chat_id': chatId, 'content': content}),
+          body: JSON.stringify({'user_id': userId, 'chat_id': chatId, 'content': content, 'shared_id': sharedId}),
           headers: {'Content-Type': 'application/json'}
         })
         let data = await response.json()
@@ -153,6 +176,9 @@ export function ConversationsProvider(props) {
       addConversation: addConversation,
       saveConversationToLocalStorage: saveConversationToLocalStorage,
       getConversations: getConversations,
+      deleteConvo: deleteConvo,
+      deleteConvoFromLocalStorage: deleteConvoFromLocalStorage,
+      deleteConvoFromDatabase: deleteConvoFromDatabase,
       activeConvo: activeConvo,
       setActiveConvo: setActiveConvo,
       webSocketsDict: webSocketsDict,

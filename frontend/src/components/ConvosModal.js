@@ -4,6 +4,7 @@ import Modal from 'react-bootstrap/Modal'
 import axios from '../axiosConfig.js'
 import { useConversations } from '../contexts/ConversationsProvider.js'
 import { useUsers } from '../contexts/UserProvider.js'
+import { useContacts } from '../contexts/ContactsProvider.js'
 
 function ConvosModal({show, setShow}) {
     const options = ['user1','user2','user3']
@@ -15,6 +16,7 @@ function ConvosModal({show, setShow}) {
     const [username, setUsername] = useState('')
     const { conversations, addConversation, saveConversationToLocalStorage } = useConversations()
     const { activeUser } = useUsers()
+    const { addContact, addContactToLocalStorage } = useContacts()
 
 
     
@@ -35,8 +37,10 @@ function ConvosModal({show, setShow}) {
         .then((response) => {
             data = response.data
             console.log(response.data)
-            addConversation(data.room_id, data.users)
-            saveConversationToLocalStorage(data.room_id, data.users)
+            addConversation(data)
+            saveConversationToLocalStorage(data)
+            addContact(data.user)
+            addContactToLocalStorage(data.user)
         })
         .catch((error) => {
             console.log(error)

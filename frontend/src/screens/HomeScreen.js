@@ -5,10 +5,12 @@ import { useUsers } from '../contexts/UserProvider'
 import ConversationPanel from '../components/ConversationPanel'
 import { useConversations } from '../contexts/ConversationsProvider'
 import { w3cwebsocket as W3CWebSocket } from 'websocket'
+import { useContacts } from '../contexts/ContactsProvider'
 
 function HomeScreen() {
   const { activeUser, setActiveUser, isLoggedIn } = useUsers()
   const { conversations, addWebSocket, activeWebSocket, setActiveWebSocket, webSocketsDict, setConversations, getConversations, getChatMessages, setChatMessages } = useConversations()
+  const { getContactsFromDatabase, setContacts } = useContacts()
   const navigate = useNavigate()
   
   
@@ -23,9 +25,14 @@ function HomeScreen() {
       const chatMessagesFromBackend = await getChatMessages(activeUser.id)
       setChatMessages(chatMessagesFromBackend)
       localStorage.setItem('chatMessages', JSON.stringify(chatMessagesFromBackend))
+      // open all websockets
       conversations.map((conversation, index) => {
-        addWebSocket(conversation.id, activeUser.id, activeUser.username)
+        addWebSocket(conversation.shared_id, activeUser.id, activeUser.username)
     }, [])
+      // get contacts from backend and set state and local storage with contacts
+      const contactsFromBackend = getContactsFromDatabase(activeUser.id)
+      setContacts(contactsFromBackend)
+      localStorage.setItem('contacts', contactsFromBackend)
   }
   getData()
 }, [])

@@ -8,7 +8,7 @@ import MessageBubble from './MessageBubble'
 
 function ConversationPanel() {
     const { conversations, activeConvo, setActiveConvo, webSocketsDict, saveMessageToLocalStorage, saveMessageToDatabase, chatMessages } = useConversations()
-    let thisWebSocket = webSocketsDict[activeConvo]
+    let thisWebSocket;
     const { activeUser } = useUsers()
     const [message, setMessage] = useState('')
     const updateMessage = (e) => {
@@ -17,13 +17,17 @@ function ConversationPanel() {
     let currentMessages = (activeConvo in chatMessages) ? chatMessages[activeConvo] : []
 
     // get information (object) of active conversation
-    for (let i=0; i<conversations.length; i++) {
-        if (conversations[i].id === activeConvo) {
-            const activeConvoObject = conversations[i]
+    const getConvoObject = (shared_id) => {
+        for (let i=0; i<conversations.length; i++) {
+            if (conversations[i].shared_id === shared_id) {
+                return conversations[i]
+            }
         }
     }
 
     const handleSendMessage = (e) => {
+        const activeConvoObject = getConvoObject(activeConvo)
+        thisWebSocket = webSocketsDict[activeConvoObject.shared_id]
         console.log('message sent')
         e.preventDefault()
         thisWebSocket.send(
@@ -31,10 +35,11 @@ function ConversationPanel() {
                 type: 'message', 
                 message: message,
                 message_username: activeUser.username,
-                message_user_id: activeUser.id
+                message_user_id: activeUser.id,
+                shared_id: activeConvoObject.shared_id
             })
         )
-        saveMessageToDatabase(activeUser.id, activeConvo, message)
+        saveMessageToDatabase(activeUser.id, activeConvo, message, activeConvoObject.shared_id)
         setMessage('')
     }
 
@@ -54,7 +59,7 @@ function ConversationPanel() {
                     const messageData = JSON.parse(message.data)
                     // console.log(messageData)
                     if (!(messageData.type === 'id_message')) {
-                        saveMessageToLocalStorage(messageData.message_user_id, messageData.chat_id, messageData.message)
+                        saveMessageToLocalStorage(messageData.message_user_id, messageData.chat_id, messageData.message, messageData.shared_id)
                     }
                 }
             }

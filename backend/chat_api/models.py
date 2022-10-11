@@ -1,4 +1,5 @@
 from email.policy import default
+from tokenize import blank_re
 from django.db import models
 from datetime import datetime
 
@@ -25,13 +26,15 @@ class MyUser(AbstractUser):
 
 
 class ChatRoom(models.Model):
-    users = models.ManyToManyField(MyUser, related_name = 'chats')
+    user = models.ForeignKey(MyUser, related_name = 'chats', on_delete = models.CASCADE, blank=True, null=True)
+    other_users = models.ManyToManyField(MyUser, blank=True, null=True)
     websocket_url = models.URLField(blank=True, null=True)
+    shared_id = models.CharField(max_length=200, blank=True, null=True)
 
 class Message(models.Model):
     content = models.CharField(max_length=5000)
     sender = models.ForeignKey('MyUser', on_delete = models.SET_NULL, null=True, related_name='sender')
-    chat = models.ForeignKey('ChatRoom', related_name='messages', on_delete=models.CASCADE)
+    chats = models.ManyToManyField('ChatRoom', related_name='messages')
     send_time = models.DateTimeField(default=datetime.now)
 
     def save(self, *args, **kwargs):
@@ -39,5 +42,9 @@ class Message(models.Model):
         if not self.id:
             self.send_time = timezone.now()
             return super(Message, self).save(*args, **kwargs)
+
+class Contact(models.Model):
+    user = models.ForeignKey('MyUser', on_delete = models.CASCADE)
+    contact = models.ForeignKey('MyUser', on_delete = models.CASCADE)
 
 

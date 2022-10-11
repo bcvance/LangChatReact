@@ -10,4 +10,5 @@ urlpatterns = [
     path('messages/', views.messages, name='messages'),
     path('save_message/', views.save_message, name='save_message'),
     path('register/', views.register_user, name='register'),
+    path('delete_convo/', views.delete_convo, name='delete_convo'),
 ]

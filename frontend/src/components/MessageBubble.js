@@ -19,7 +19,7 @@ function MessageBubble({message, index}) {
             return index === chatMessages[message.chat].length-1 ? 'mt-3 mx-3 bg-primary align-self-end text-light p-2' : 'm-3 bg-primary align-self-end text-light p-2'
         }
         else  {
-            return index === chatMessages[message.chat].length-1 ? 'mt-3 mx-3 align-self-start bg-light' : 'm-3 align-self-start bg-light'
+            return index === chatMessages[message.chat].length-1 ? 'mt-3 mx-3 align-self-start bg-light p-2' : 'm-3 align-self-start bg-light p-2'
         }
     }
   return (
