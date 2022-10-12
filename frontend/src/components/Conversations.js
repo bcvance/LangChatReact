@@ -1,12 +1,14 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ListGroup } from 'react-bootstrap'
 import { useConversations } from '../contexts/ConversationsProvider'
 import { useUsers } from '../contexts/UserProvider'
 import { getTimeFormat, getDisplayText } from '../utils/formatters'
+import SaveContactModal from './SaveContactModal'
 
 function Conversations() {
     const { conversations, setConversations, activeConvo, setActiveConvo, webSocketsDict, addWebSocket, chatMessages, deleteConvo, deleteConvoFromLocalStorage, deleteConvoFromDatabase } = useConversations()
     const { activeUser } = useUsers()
+    const [showSaveContactModal, setShowSaveContactModal] = useState(false)
 
     const changeActiveConvo = (id, index) => {
       console.log('convo changed')
@@ -28,6 +30,10 @@ function Conversations() {
       deleteConvoFromLocalStorage(index)
     }
 
+    const handleShowSaveContactModal = () => {
+      setShowSaveContactModal(true)
+    }
+
   return (
     <div style={{height: '90vh'}} className='d-flex flex-column overflow-auto'>
       <ListGroup variant='flush'>
@@ -45,7 +51,7 @@ function Conversations() {
             <ListGroup.Item key={conversation.id} onClick={() => changeActiveConvo(conversation.shared_id, index)} className={itemClasses(conversation.shared_id)}>
               <div className='d-flex flex-column'>
                 <div>
-                  <span style={{fontSize: '14px'}} className='float-start'>{conversation.other_users}</span>
+                  <span style={{fontSize: '14px', textDecoration: 'underline', cursor: 'pointer'}} className='float-start' onClick={() => handleShowSaveContactModal()}>{conversation.other_users}</span>
                   <span style={{fontSize: '14px'}} className={activeConvo === conversation.shared_id ? 'float-end' : 'float-end text-secondary'}>{displayDate}</span>
                 </div>
                 <div>
@@ -63,6 +69,7 @@ function Conversations() {
           )
           })}
       </ListGroup>
+      <SaveContactModal show={showSaveContactModal} setShow={setShowSaveContactModal} />
     </div>
   )
 }

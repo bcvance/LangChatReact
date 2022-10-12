@@ -101,6 +101,15 @@ def chat(request):
 
 @csrf_exempt
 @api_view(['POST'])
+def contacts(request):
+    user_id = request.data['user_id']
+    user = MyUser.objects.get(id=user_id)
+    # get all of the signed in user's contacts
+    contacts = [contact.contact.username for contact in Contact.objects.filter(user=user)]
+    return Response({'contacts': contacts}, status=status.HTTP_200_OK)
+
+@csrf_exempt
+@api_view(['POST'])
 def conversations(request):
     user_id = request.data['user_id']
     user = MyUser.objects.get(id=user_id)
@@ -142,6 +151,19 @@ def messages(request):
             chat_messages.append(message_info)
         user_messages[chat.shared_id] = chat_messages
     return JsonResponse(user_messages, safe=False)
+
+@csrf_exempt
+@api_view(['POST'])
+def save_contact(request):
+    user_username = request.data['user_username']
+    contact_username = request.data['contact_username']
+    if Contact.objects.filter(user=MyUser.objects.get(username=user_username), contact=MyUser.objects.get(username=contact_username)).exists():
+        return Response({'detail': 'user already in contacts'}, status=status.HTTP_400_BAD_REQUEST)
+    Contact.objects.create(
+        user=MyUser.objects.get(username=user_username),
+        contact=MyUser.objects.get(username=contact_username)
+        )
+    return Response({'detail': 'contact saved successfully'}, status=status.HTTP_200_OK)
 
 @csrf_exempt
 @api_view(['POST'])

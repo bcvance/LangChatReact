@@ -85,7 +85,6 @@ export function ConversationsProvider(props) {
       console.log('called')
       setWebSocketsDict(prevWebSockets => {
         if (!(shared_id in prevWebSockets)) {
-          console.log('creating socket')
           prevWebSockets[shared_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${shared_id}/`)
           prevWebSockets[shared_id].onopen = (e) => {
             prevWebSockets[shared_id].send(JSON.stringify({
@@ -101,7 +100,6 @@ export function ConversationsProvider(props) {
     }
 
     function saveMessageToLocalStorage(user_id, chat_id, message, shared_id) {
-      console.log('save message called')
       let parsed = JSON.parse(localStorage.getItem('chatMessages'))
       const date = new Date()
 

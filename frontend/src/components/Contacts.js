@@ -1,8 +1,14 @@
 import React from 'react'
+import { useContacts } from '../contexts/ContactsProvider'
+
 
 function Contacts() {
+  const { contacts } = useContacts()
+
   return (
-    <div>Contacts</div>
+    contacts.map((contact) => (
+      <p>{contact}</p>
+    ))
   )
 }
 

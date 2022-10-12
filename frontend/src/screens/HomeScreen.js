@@ -30,9 +30,9 @@ function HomeScreen() {
         addWebSocket(conversation.shared_id, activeUser.id, activeUser.username)
     }, [])
       // get contacts from backend and set state and local storage with contacts
-      const contactsFromBackend = getContactsFromDatabase(activeUser.id)
-      setContacts(contactsFromBackend)
-      localStorage.setItem('contacts', contactsFromBackend)
+      const contactsFromBackend =  await getContactsFromDatabase(activeUser.id)
+      setContacts(contactsFromBackend.contacts)
+      localStorage.setItem('contacts', contactsFromBackend.contacts)
   }
   getData()
 }, [])

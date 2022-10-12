@@ -44,7 +44,8 @@ class Message(models.Model):
             return super(Message, self).save(*args, **kwargs)
 
 class Contact(models.Model):
-    user = models.ForeignKey('MyUser', on_delete = models.CASCADE)
+    user = models.ForeignKey('MyUser', on_delete = models.CASCADE, related_name = 'contacts')
     contact = models.ForeignKey('MyUser', on_delete = models.CASCADE)
+
 
 

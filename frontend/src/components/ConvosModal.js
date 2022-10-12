@@ -16,8 +16,6 @@ function ConvosModal({show, setShow}) {
     const [username, setUsername] = useState('')
     const { conversations, addConversation, saveConversationToLocalStorage } = useConversations()
     const { activeUser } = useUsers()
-    const { addContact, addContactToLocalStorage } = useContacts()
-
 
     
     // update state on form change
@@ -39,8 +37,6 @@ function ConvosModal({show, setShow}) {
             console.log(response.data)
             addConversation(data)
             saveConversationToLocalStorage(data)
-            addContact(data.user)
-            addContactToLocalStorage(data.user)
         })
         .catch((error) => {
             console.log(error)
