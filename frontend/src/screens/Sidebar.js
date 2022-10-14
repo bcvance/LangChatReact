@@ -5,11 +5,13 @@ import Conversations from '../components/Conversations'
 import Contacts from '../components/Contacts'
 import ConvosModal from '../components/ConvosModal'
 import ContactsModal from '../components/ContactsModal'
+import { useContacts } from '../contexts/ContactsProvider'
 
 function Sidebar() {
     const [activeTab, setActiveTab] = useState('conversations')
     const [showConvosModal, setShowConvosModal] = useState(false)
     const [showContactsModal, setShowContactsModal] = useState(false)
+    const { contactChecked } = useContacts()
 
     function handleShow(activeTab) {
         activeTab === 'conversations' ? setShowConvosModal(true) : setShowContactsModal(true)
@@ -34,9 +36,14 @@ function Sidebar() {
                     <Contacts />
                 </Tab.Pane>
             </Tab.Content>
+            {activeTab === 'conversations' && 
             <Button style={{position: 'absolute', bottom: '0', width: '250px', zIndex: '100'}} className='p-2 text-light bg-primary my-1' onClick={() => handleShow(activeTab)}>
-                New {activeTab === 'conversations' ? 'Conversation' : 'Contact'}
-            </Button>
+                New Conversation
+            </Button>}
+            {(activeTab === 'contacts' && contactChecked) &&
+            <Button style={{position: 'absolute', bottom: '0', width: '250px', zIndex: '100'}} className='p-2 text-light bg-primary my-1' onClick={() => handleShow(activeTab)}>
+                Create Conversation
+            </Button>}
         </Tab.Container>
         <ConvosModal show={showConvosModal} setShow={setShowConvosModal}/>
         <ContactsModal show={showContactsModal} setShow={setShowContactsModal}/>

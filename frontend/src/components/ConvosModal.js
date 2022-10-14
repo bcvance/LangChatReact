@@ -7,20 +7,33 @@ import { useUsers } from '../contexts/UserProvider.js'
 import { useContacts } from '../contexts/ContactsProvider.js'
 
 function ConvosModal({show, setShow}) {
-    const options = ['user1','user2','user3']
+    const { contacts, checkedContacts, setCheckedContacts } = useContacts()
     const handleClose = () => setShow(false)
     const [activeTab, setActiveTab] = useState('findPartner')
     const languages = ['English', 'French', 'German', 'Russian', 'Spanish']
     const [myLanguage, setMyLanguage] = useState('English')
     const [learningLanguage, setLearningLanguage] = useState('English')
     const [username, setUsername] = useState('')
-    const { conversations, addConversation, saveConversationToLocalStorage } = useConversations()
+    const { conversations, addConversation, saveConversationToLocalStorage, manualChat } = useConversations()
     const { activeUser } = useUsers()
 
     
     // update state on form change
     const updateLanguages = (event) => {
         event.target.name === 'myLanguage' ? setMyLanguage(event.target.value) : setLearningLanguage(event.target.value)
+    }
+
+    const updateChecked = (e) => {
+        if (e.target.checked) {
+            setCheckedContacts((prevCheckedContacts) => {
+                return [...prevCheckedContacts, e.target.value]
+            })
+        }
+        else {
+            setCheckedContacts((prevCheckedContacts) => {
+                return prevCheckedContacts.filter((username) => username !== e.target.value)
+            })
+        }
     }
 
     
@@ -36,7 +49,7 @@ function ConvosModal({show, setShow}) {
             data = response.data
             console.log(response.data)
             addConversation(data)
-            saveConversationToLocalStorage(data)
+            // saveConversationToLocalStorage(data)
         })
         .catch((error) => {
             console.log(error)
@@ -81,14 +94,15 @@ function ConvosModal({show, setShow}) {
                         </Form>
                     </Tab.Pane>
                     <Tab.Pane eventKey='myContacts'>
-                        <Form>
+                        <Form onSubmit={() => manualChat(checkedContacts)}>
                             <Form.Group className='mb-3' controlId='selectUsers'>
-                                {options.map((option) => (
-                                    <div key={option} className='mb-3'>
-                                        <Form.Check type='checkbox' label={option} />
+                                {contacts.map((username, index) => (
+                                    <div key={index} className='mb-3'>
+                                        <Form.Check type='checkbox' label={username} value={username} onChange={(e) => updateChecked(e)} />
                                     </div>
                                 ))}
                             </Form.Group>
+                            <Button as='input' type='submit' value='Create conversation'></Button>
                         </Form>
                     </Tab.Pane>
                 </Tab.Content>

@@ -9,7 +9,7 @@ import { useContacts } from '../contexts/ContactsProvider'
 
 function HomeScreen() {
   const { activeUser, setActiveUser, isLoggedIn } = useUsers()
-  const { conversations, addWebSocket, activeWebSocket, setActiveWebSocket, webSocketsDict, setConversations, getConversations, getChatMessages, setChatMessages } = useConversations()
+  const { conversations, addWebSocket, activeWebSocket, setActiveWebSocket, webSocketsDict, setConversations, getConversations, getChatMessages, setChatMessages, setActiveConvo } = useConversations()
   const { getContactsFromDatabase, setContacts } = useContacts()
   const navigate = useNavigate()
   
@@ -21,12 +21,13 @@ function HomeScreen() {
       // get all conversations containing logged in user
       const convosFromBackend = await getConversations(activeUser.id)
       setConversations(convosFromBackend)
+      setActiveConvo(convosFromBackend[0].shared_id)
       localStorage.setItem('conversations', JSON.stringify(convosFromBackend))
       const chatMessagesFromBackend = await getChatMessages(activeUser.id)
       setChatMessages(chatMessagesFromBackend)
       localStorage.setItem('chatMessages', JSON.stringify(chatMessagesFromBackend))
       // open all websockets
-      conversations.map((conversation, index) => {
+      convosFromBackend.map((conversation, index) => {
         addWebSocket(conversation.shared_id, activeUser.id, activeUser.username)
     }, [])
       // get contacts from backend and set state and local storage with contacts

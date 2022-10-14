@@ -25,9 +25,9 @@ function SaveContactModal({show, setShow}) {
         console.log('save contacts triggered')
         for (let i=0; i<saveUsers.length; i++) {
             addContact(saveUsers[i])
-            addContactToLocalStorage(saveUsers[i])
             saveContactToDatabase(activeUser.username, saveUsers[i])
         }
+        handleClose()
     }
 
     const handleChange = (e) => {

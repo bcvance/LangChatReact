@@ -11,6 +11,7 @@ export function useConversations() {
 
 export function ConversationsProvider(props) {
     const [conversations, setConversations] = useLocalStorage('conversations', [])
+    const { activeUser } = useUsers()
     const [activeConvo, setActiveConvo] = useState(() => {
       if (Object.keys(conversations).length > 0) {
         return conversations[0].shared_id
@@ -41,7 +42,11 @@ export function ConversationsProvider(props) {
 
     function addConversation(data) {
         setConversations(prevConversations => {
-          return [...prevConversations, {id: data.room_id, user: data.user, shared_id: data.shared_id}]
+          let newConversations = [...prevConversations]
+          if (!('other_users' in data)) {
+            data.other_users = []
+          }
+          return [...newConversations, {id: data.room_id, user: data.user, shared_id: data.shared_id, other_users: data.other_users}]
         })
     }
 
@@ -53,8 +58,9 @@ export function ConversationsProvider(props) {
 
     function deleteConvo(index) {
       setConversations(prevConversations => {
-        prevConversations.splice(index, 1)
-        return prevConversations
+        let newConversations = [...prevConversations]
+        newConversations.splice(index, 1)
+        return newConversations
       })
     }
 
@@ -82,7 +88,6 @@ export function ConversationsProvider(props) {
     }
 
     function addWebSocket(shared_id, user_id, username) {
-      console.log('called')
       setWebSocketsDict(prevWebSockets => {
         if (!(shared_id in prevWebSockets)) {
           prevWebSockets[shared_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${shared_id}/`)
@@ -113,8 +118,6 @@ export function ConversationsProvider(props) {
           const newMessages = {...prevChatMessages}
           console.log(newMessages)
           newMessages[chat_id] = [...newMessages[chat_id], {content: message, sender: user_id, chat: activeConvo, send_time: date.toISOString(), shared_id: shared_id}]
-          console.log('in set chat')
-          console.log(newMessages)
           return newMessages
         })
       }
@@ -138,12 +141,18 @@ export function ConversationsProvider(props) {
       // }
     }
 
-    async function saveMessageToDatabase(userId, chatId, content, sharedId) {
+    async function saveMessageToDatabase(userId, userUsername, chatId, content, sharedId, otherUsers) {
       let url = 'http://127.0.0.1:8000/api/save_message/'
       try {
         let response = await fetch(url, {
           method: 'POST',
-          body: JSON.stringify({'user_id': userId, 'chat_id': chatId, 'content': content, 'shared_id': sharedId}),
+          body: JSON.stringify({
+            'user_id': userId, 
+            'user_username': userUsername,
+            'chat_id': chatId, 
+            'content': content, 
+            'shared_id': sharedId, 
+            'other_users': otherUsers}),
           headers: {'Content-Type': 'application/json'}
         })
         let data = await response.json()
@@ -163,7 +172,26 @@ export function ConversationsProvider(props) {
         let data = await response.json()
         return data
       }catch(e) {
-        console.log(e)
+        return e
+      }
+    }
+    
+    // takes list of usernames and creates chat containing those users
+    async function manualChat(users) {
+      let url = 'http://127.0.0.1:8000/api/manual_chat/'
+      try {
+        let response = await fetch(url, {
+          method: 'POST',
+          body: JSON.stringify({'other_users': users, 'active_user': activeUser.username}),
+          headers: {'Content-Type': 'application/json'}
+        })
+        let data = await response.json()
+        console.log(data)
+        addConversation(data)
+        //saveConversationToLocalStorage(data)
+        return data
+      }catch(e) {
+        return e
       }
     }
 
@@ -188,6 +216,7 @@ export function ConversationsProvider(props) {
       chatMessages: chatMessages,
       setChatMessages: setChatMessages,
       getChatMessages: getChatMessages,
+      manualChat: manualChat
     }
 
     useEffect(() => {

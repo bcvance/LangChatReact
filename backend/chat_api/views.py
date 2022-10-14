@@ -13,6 +13,7 @@ from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from datetime import date
+from django.core.exceptions import ObjectDoesNotExist
 
 import json
 from uuid import uuid4
@@ -64,7 +65,7 @@ def chat(request):
             user=MyUser.objects.get(username=username), 
             shared_id=room_shared_id
             )
-        room.websocket_url = f'ws://127.0.0.1:8000/ws/socket-server/{room.id}/'
+        room.websocket_url = f'ws://127.0.0.1:8000/ws/socket-server/{room.shared_id}/'
         room.save()
         print('room saved')
         # get all users in the chat who are not the users associated with the current account
@@ -84,7 +85,7 @@ def chat(request):
             user=MyUser.objects.get(username=username), 
             shared_id=uuid4()
             )
-        room.websocket_url = f'ws://127.0.0.1:8000/ws/socket-server/{room.id}/'
+        room.websocket_url = f'ws://127.0.0.1:8000/ws/socket-server/{room.shared_id}/'
         room.save()
         temp_user = TempUser.objects.create(username=username, knows=know_languages, learning=learning_languages, room_name=room)
         request.session["temp_user_id"] = temp_user.id
@@ -126,11 +127,49 @@ def conversations(request):
 
 @csrf_exempt
 @api_view(['POST'])
+def delete_contact(request):
+    user_username = request.data['user_username']
+    contact_username = request.data['contact_username']
+    Contact.objects.filter(
+        user=MyUser.objects.get(username=user_username),
+        contact=MyUser.objects.get(username=contact_username)
+        ).first().delete()
+    return Response({'detail': 'contact deleted successfully'}, status=status.HTTP_200_OK)
+
+@csrf_exempt
+@api_view(['POST'])
 def delete_convo(request):
     chat_id = request.data['chat_id']
     # delete chat from database
     ChatRoom.objects.get(id=chat_id).delete()
     return Response({'detail': 'conversation deleted successfully'}, status=status.HTTP_200_OK)
+
+@csrf_exempt
+@api_view(['POST'])
+def manual_chat(request):
+    # create chat containing all users defined in user_ids
+    other_users = request.data['other_users']
+    active_user = request.data['active_user']
+    shared_id = uuid4()
+    # create chat instance for user who is creating chat 
+    room = ChatRoom(
+        user = MyUser.objects.get(username=active_user), 
+        shared_id=shared_id,
+        websocket_url=f'ws://127.0.0.1:8000/ws/socket-server/{shared_id}/')
+    room.save()
+    # create list of all users except current user
+    other_users_objects = [MyUser.objects.get(username=name) for name in other_users if name != active_user]
+    room.other_users.add(*other_users_objects)
+    # return the chat instance for the active user back to the client
+    return JsonResponse({
+        "room_id": room.id,
+        "shared_id": room.shared_id,
+        # get all users who are in a chatroom with the given shared_id
+        "user": room.user.username,
+        "other_users": [user.username for user in room.other_users.all()]
+    })
+    
+
 
 @csrf_exempt
 @api_view(['POST'])
@@ -170,17 +209,37 @@ def save_contact(request):
 def save_message(request):
     content = request.data['content']
     user_id = request.data['user_id']
+    user_username = request.data['user_username']
     chat_id = request.data['chat_id']
     shared_id = request.data['shared_id']
+    other_users = request.data['other_users']
+    all_users = other_users + [user_username]
     new_message = Message(
         content = content, 
         sender = MyUser.objects.get(id=user_id),
         )
-    # set all of the chats associated with this message
-    all_chats = list(ChatRoom.objects.filter(shared_id=shared_id))
     new_message.save()
-    new_message.chats.add(*all_chats)
-
+    chat = ChatRoom.objects.get(user=MyUser.objects.get(id=user_id), shared_id=shared_id)
+    # add the sender's chat to chats associated with this message
+    new_message.chats.add(chat)
+    # add all of the receivers' chats associated with this message
+    for username in other_users:
+        user = MyUser.objects.get(username=username)
+        try:
+            chat = ChatRoom.objects.get(user=user, shared_id=shared_id)
+            new_message.chats.add(chat)
+        except ObjectDoesNotExist:
+            print('except triggered')
+            # if the user has deleted their instance of the chat,
+            # create new instance and add to chats associated with message
+            new_other_users = [MyUser.objects.get(username=name) for name in all_users if name != username]
+            chat = ChatRoom.objects.create(
+                user=user, 
+                websocket_url=f'ws://127.0.0.1:8000/ws/socket-server/{shared_id}/',
+                shared_id=shared_id
+                )
+            chat.other_users.set(new_other_users)
+            new_message.chats.add(chat)
 
     return Response({'detail': 'word saved successfully'}, status=status.HTTP_200_OK)
     

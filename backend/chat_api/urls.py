@@ -12,5 +12,7 @@ urlpatterns = [
     path('register/', views.register_user, name='register'),
     path('delete_convo/', views.delete_convo, name='delete_convo'),
     path('contacts/', views.contacts, name='contacts'),
-    path('save_contact/', views.save_contact, name='save_contact')
+    path('save_contact/', views.save_contact, name='save_contact'),
+    path('manual_chat/', views.manual_chat, name='manual_chat'),
+    path('delete_contact/', views.delete_contact, name='delete_contact')
 ]

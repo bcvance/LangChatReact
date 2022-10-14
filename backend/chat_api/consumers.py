@@ -46,21 +46,15 @@ class ChatConsumer(WebsocketConsumer):
                 }
             )
         elif text_data_json['type'] == 'id_message':
+            print('id message received')
             self.user_id = text_data_json['user_id']
             self.username = message_username
             self.user_group_name = f'user_{self.username}'
 
-        #     async_to_sync(self.channel_layer.group_add)(
-        #         self.user_group_name,
-        #         self.channel_name
-        # )       
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
-                {
-                    'type': 'id_message',
-                    'message': f'{self.username} connected to chat {self.room_name}'
-                }
-            )     
+            async_to_sync(self.channel_layer.group_add)(
+                self.user_group_name,
+                self.channel_name
+        )         
 
         else:
             message = text_data_json['message']
@@ -115,6 +109,13 @@ class ChatConsumer(WebsocketConsumer):
             'type': 'indiv_message',
             'message_username': message_username,
             'username': username
+        }))
+
+    def new_chat_message(self, event):
+        # notify all users in chat that new chat instance has been generated for at
+        # least one user in chat. will trigger api call to fetch new convo information
+        self.send(text_data=json.dumps({
+            'type': 'new_chat_message'
         }))
 
     def disconnect_message(self, event):

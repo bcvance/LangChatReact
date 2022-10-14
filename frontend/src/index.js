@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import "bootswatch/dist/sandstone/bootstrap.min.css";
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import UsersProvider from './contexts/UserProvider';
 import ConversationsProvider from './contexts/ConversationsProvider'
 import ContactsProvider from './contexts/ContactsProvider'

@@ -1,5 +1,6 @@
+from dataclasses import fields
 from rest_framework import serializers
-from .models import MyUser
+from .models import MyUser, ChatRoom
 from rest_framework_simplejwt.tokens import RefreshToken
 
 class MyUserSerializer(serializers.ModelSerializer):
@@ -17,3 +18,8 @@ class MyUserSerializerWithToken(MyUserSerializer):
     def get_token(self, obj):
         token = RefreshToken.for_user(obj)
         return str(token.access_token)
+
+class ChatRoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChatRoom
+        fields = '__all__'

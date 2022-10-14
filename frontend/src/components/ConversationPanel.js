@@ -36,10 +36,11 @@ function ConversationPanel() {
                 message: message,
                 message_username: activeUser.username,
                 message_user_id: activeUser.id,
-                shared_id: activeConvoObject.shared_id
+                shared_id: activeConvoObject.shared_id,
+                other_users: activeConvoObject.other_users
             })
         )
-        saveMessageToDatabase(activeUser.id, activeConvo, message, activeConvoObject.shared_id)
+        saveMessageToDatabase(activeUser.id, activeUser.username, activeConvo, message, activeConvoObject.shared_id, activeConvoObject.other_users)
         setMessage('')
     }
 
@@ -58,7 +59,12 @@ function ConversationPanel() {
                 webSocketsDict[convoId].onmessage = (message) => {
                     const messageData = JSON.parse(message.data)
                     // console.log(messageData)
-                    if (!(messageData.type === 'id_message')) {
+                    if (messageData.type === 'new_chat_message') {
+                        console.log('got new chat message')
+                        // trigger refresh to test first, then do by altering state
+                        window.location.reload(true)
+                    }
+                    else if (!(messageData.type === 'id_message')) {
                         saveMessageToLocalStorage(messageData.message_user_id, messageData.chat_id, messageData.message, messageData.shared_id)
                     }
                 }

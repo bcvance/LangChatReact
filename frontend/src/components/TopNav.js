@@ -33,8 +33,8 @@ function TopNav() {
     }
 
   return (
-    <div style={{ padding: '8.5px' }} className='border-bottom align-items text-end'>
-        <a style={{fontSize: 'small', cursor: 'pointer'}} className='ms-auto me-2 ' onClick={handleLog}>
+    <div style={{ padding: '7.5px' }} className='border-bottom align-items text-end'>
+        <a style={{fontSize: 'small', cursor: 'pointer'}} className='ms-auto me-2 text-primary' onClick={handleLog}>
             {isLoggedIn ? 'Log Out' : 'Log In'}
         </a>
     </div>
