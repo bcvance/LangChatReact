@@ -12,9 +12,7 @@ import { useEffect } from 'react'
 
 function App() {
   const { isLoggedIn } = useUsers()
-  useEffect(() => {
-    console.log(isLoggedIn)
-  })
+
   return (
           <Router>
             <Routes>

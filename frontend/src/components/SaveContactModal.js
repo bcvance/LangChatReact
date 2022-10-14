@@ -44,9 +44,7 @@ function SaveContactModal({show, setShow}) {
         }
     }
 
-    useEffect(() => {
-        console.log(saveUsers)
-    })
+
 
   return (
     <Modal show={show} onHide={handleClose}>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import { useUsers } from '../contexts/UserProvider'
@@ -6,10 +6,11 @@ import ConversationPanel from '../components/ConversationPanel'
 import { useConversations } from '../contexts/ConversationsProvider'
 import { w3cwebsocket as W3CWebSocket } from 'websocket'
 import { useContacts } from '../contexts/ContactsProvider'
+import { v4 as uuidv4 } from 'uuid'
 
 function HomeScreen() {
   const { activeUser, setActiveUser, isLoggedIn } = useUsers()
-  const { conversations, addWebSocket, activeWebSocket, setActiveWebSocket, webSocketsDict, setConversations, getConversations, getChatMessages, setChatMessages, setActiveConvo } = useConversations()
+  const { conversations, addWebSocket, activeWebSocket, setActiveWebSocket, webSocketsDict, setConversations, getConversations, getChatMessages, setChatMessages, setActiveConvo, addUniqueSocket } = useConversations()
   const { getContactsFromDatabase, setContacts } = useContacts()
   const navigate = useNavigate()
   
@@ -17,6 +18,11 @@ function HomeScreen() {
 
   // create websocket connections for all existent conversations
   useEffect(() => {
+    // create initial unique websocket connection for this client so that consumers
+    // can interact with client even if client has no chats (and therefore no other websocket connections)
+    const uuid = uuidv4()
+    addUniqueSocket(uuid, activeUser.id, activeUser.username)
+  
     async function getData() {
       // get all conversations containing logged in user
       const convosFromBackend = await getConversations(activeUser.id)
@@ -32,8 +38,9 @@ function HomeScreen() {
     }, [])
       // get contacts from backend and set state and local storage with contacts
       const contactsFromBackend =  await getContactsFromDatabase(activeUser.id)
+
       setContacts(contactsFromBackend.contacts)
-      localStorage.setItem('contacts', contactsFromBackend.contacts)
+      localStorage.setItem('contacts', JSON.stringify(contactsFromBackend.contacts))
   }
   getData()
 }, [])

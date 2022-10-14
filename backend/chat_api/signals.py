@@ -19,6 +19,7 @@ def notify_user(sender, instance, **kwargs):
             'type': 'new_chat_message'
         }
     )
+    print(f'sent to {user_group_name}')
     
 post_save.connect(notify_user, sender=ChatRoom)
 # m2m_changed.connect(notify_user)

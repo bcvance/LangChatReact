@@ -10,6 +10,8 @@ export function useConversations() {
 }
 
 export function ConversationsProvider(props) {
+  
+
     const [conversations, setConversations] = useLocalStorage('conversations', [])
     const { activeUser } = useUsers()
     const [activeConvo, setActiveConvo] = useState(() => {
@@ -93,6 +95,23 @@ export function ConversationsProvider(props) {
           prevWebSockets[shared_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${shared_id}/`)
           prevWebSockets[shared_id].onopen = (e) => {
             prevWebSockets[shared_id].send(JSON.stringify({
+              'type': 'id_message',
+              'user_id': user_id,
+              'message_username': username,
+              'message_user_id': user_id
+            }))
+          }
+        }
+        return prevWebSockets
+      })
+    }
+
+    function addUniqueSocket(uuid, user_id, username) {
+      setWebSocketsDict(prevWebSockets => {
+        if (!('uniqueSocket' in prevWebSockets)){
+          prevWebSockets['uniqueSocket'] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${uuid}/`)
+          prevWebSockets['uniqueSocket'].onopen = (e) => {
+            prevWebSockets['uniqueSocket'].send(JSON.stringify({
               'type': 'id_message',
               'user_id': user_id,
               'message_username': username,
@@ -209,6 +228,7 @@ export function ConversationsProvider(props) {
       setActiveConvo: setActiveConvo,
       webSocketsDict: webSocketsDict,
       addWebSocket: addWebSocket,
+      addUniqueSocket: addUniqueSocket,
       activeWebSocket: activeWebSocket,
       setActiveWebSocket: setActiveWebSocket,
       saveMessageToLocalStorage: saveMessageToLocalStorage,
@@ -220,6 +240,7 @@ export function ConversationsProvider(props) {
     }
 
     useEffect(() => {
+      console.log('websocketsdict', webSocketsDict)
       if ((activeConvo === '' && Object.keys(conversations).length > 0)) {
         setActiveConvo(conversations[0].id)
       }
