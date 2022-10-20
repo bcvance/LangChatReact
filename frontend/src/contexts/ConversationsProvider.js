@@ -106,6 +106,7 @@ export function ConversationsProvider(props) {
       })
     }
 
+    // add a websocket connection for each user on sign in
     function addUniqueSocket(uuid, user_id, username) {
       setWebSocketsDict(prevWebSockets => {
         if (!('uniqueSocket' in prevWebSockets)){
