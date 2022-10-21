@@ -30,6 +30,13 @@ class ChatRoom(models.Model):
     other_users = models.ManyToManyField(MyUser, blank=True, null=True)
     websocket_url = models.URLField(blank=True, null=True)
     shared_id = models.CharField(max_length=200, blank=True, null=True)
+    last_saved = models.DateTimeField(default=datetime.now)
+
+    def save(self, *args, **kwargs):
+        '''On save, update timestamps'''
+        print('timestamp updated')
+        self.last_saved = timezone.now()
+        return super(ChatRoom, self).save(*args, **kwargs)
 
 class Message(models.Model):
     content = models.CharField(max_length=5000)

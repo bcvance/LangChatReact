@@ -52,7 +52,7 @@ function Conversations() {
               {('other_users' in conversation && conversation['other_users'].length > 0) 
               ? <div className='d-flex flex-column'>
                   <div>
-                    <span style={{fontSize: '14px', textDecoration: 'underline', cursor: 'pointer'}} className='float-start' onClick={() => handleShowSaveContactModal()}>{conversation.other_users}</span>
+                    <span style={{fontSize: '14px', cursor: 'pointer'}} className='float-start' onClick={() => handleShowSaveContactModal()}>{conversation.other_users.join(', ')}</span>
                     <span style={{fontSize: '14px'}} className={activeConvo === conversation.shared_id ? 'float-end' : 'float-end text-secondary'}>{displayDate}</span>
                   </div>
                   <div>

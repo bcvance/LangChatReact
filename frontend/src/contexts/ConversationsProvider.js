@@ -48,13 +48,16 @@ export function ConversationsProvider(props) {
           if (!('other_users' in data)) {
             data.other_users = []
           }
-          return [...newConversations, {id: data.room_id, user: data.user, shared_id: data.shared_id, other_users: data.other_users}]
+          newConversations = [...newConversations, {id: data.room_id, user: data.user, shared_id: data.shared_id, other_users: data.other_users}]
+          newConversations.sort((a, b) => (a.last_saved > b.last_saved ? 1 : -1))
+          return newConversations
         })
     }
 
     function saveConversationToLocalStorage(data) {
       let convosFromLocalStorage = localStorage.getItem('conversations')
       convosFromLocalStorage = [...convosFromLocalStorage, {chat_id: data.chat_id, user: data.user, shared_id: data.shared_id}]
+      convosFromLocalStorage.sort((a, b) => (a.last_saved > b.last_saved ? 1 : -1))
       localStorage.setItem('conversations', convosFromLocalStorage)
     }
 

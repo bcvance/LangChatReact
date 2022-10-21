@@ -70,6 +70,8 @@ def chat(request):
         print('room saved')
         # get all users in the chat who are not the users associated with the current account
         other_chats = ChatRoom.objects.filter(shared_id = room_shared_id).exclude(user=user)
+        for chat in other_chats:
+            chat.save()
         other_users = [chat.user for chat in other_chats]
         room.other_users.add(*other_users)
 
@@ -97,7 +99,8 @@ def chat(request):
     "shared_id": room.shared_id,
     # get all users who are in a chatroom with the given shared_id
     "user": room.user.username,
-    "other_users": [user.username for user in room.other_users.all()]
+    "other_users": [user.username for user in room.other_users.all()],
+    "last_saved": room.last_saved.isoformat()
 })
 
 @csrf_exempt
@@ -115,11 +118,12 @@ def conversations(request):
     user_id = request.data['user_id']
     user = MyUser.objects.get(id=user_id)
     chats = []
-    for chat in user.chats.all():
+    for chat in user.chats.all().order_by('-last_saved'):
         chat_info = {}
         chat_info['id'] = chat.id
         chat_info['user'] = chat.user.username
         chat_info['shared_id'] = chat.shared_id
+        chat_info['last_saved'] = chat.last_saved.isoformat()
 
         chat_info['other_users'] = [user.username for user in chat.other_users.all()]
         chats.append(chat_info)
@@ -166,7 +170,8 @@ def manual_chat(request):
         "shared_id": room.shared_id,
         # get all users who are in a chatroom with the given shared_id
         "user": room.user.username,
-        "other_users": [user.username for user in room.other_users.all()]
+        "other_users": [user.username for user in room.other_users.all()],
+        "last_saved": room.last_saved.isoformat()
     })
     
 
@@ -240,6 +245,10 @@ def save_message(request):
                 )
             chat.other_users.set(new_other_users)
             new_message.chats.add(chat)
+            chat.save()
+
+    # update the last_saved value for all chat instances for this chat
+    ChatRoom.objects.filter(shared_id=shared_id).update(last_saved=datetime.now())
 
     return Response({'detail': 'word saved successfully'}, status=status.HTTP_200_OK)
     

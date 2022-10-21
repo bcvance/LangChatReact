@@ -31,7 +31,7 @@ class ChatConsumer(WebsocketConsumer):
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        print(text_data_json)
+        # print(text_data_json)
         message_username = text_data_json['message_username']
         message_user_id = text_data_json['message_user_id']
 
@@ -47,7 +47,7 @@ class ChatConsumer(WebsocketConsumer):
                 }
             )
         elif text_data_json['type'] == 'id_message':
-            print('id message received')
+           # print('id message received')
             self.user_id = text_data_json['user_id']
             self.username = message_username
             self.user_group_name = f'user_{self.username}'
@@ -56,7 +56,7 @@ class ChatConsumer(WebsocketConsumer):
                 self.user_group_name,
                 self.channel_name
         )         
-            print(f'{self.user_group_name} added')
+            # print(f'{self.user_group_name} added')
 
         else:
             message = text_data_json['message']
