@@ -48,7 +48,7 @@ export function ConversationsProvider(props) {
           if (!('other_users' in data)) {
             data.other_users = []
           }
-          newConversations = [...newConversations, {id: data.room_id, user: data.user, shared_id: data.shared_id, other_users: data.other_users}]
+          newConversations = [...newConversations, {id: data.room_id, user: data.user, shared_id: data.shared_id, other_users: data.other_users, has_unread: data.has_unread}]
           newConversations.sort((a, b) => (a.last_saved > b.last_saved ? 1 : -1))
           return newConversations
         })
@@ -56,7 +56,7 @@ export function ConversationsProvider(props) {
 
     function saveConversationToLocalStorage(data) {
       let convosFromLocalStorage = localStorage.getItem('conversations')
-      convosFromLocalStorage = [...convosFromLocalStorage, {chat_id: data.chat_id, user: data.user, shared_id: data.shared_id}]
+      convosFromLocalStorage = [...convosFromLocalStorage, {chat_id: data.chat_id, user: data.user, shared_id: data.shared_id, has_unread: data.has_unread}]
       convosFromLocalStorage.sort((a, b) => (a.last_saved > b.last_saved ? 1 : -1))
       localStorage.setItem('conversations', convosFromLocalStorage)
     }
@@ -171,12 +171,13 @@ export function ConversationsProvider(props) {
 
   async function setUnread(chat_id) {
     console.log('chat id', chat_id)
+    const unreadChatObject = conversations.filter((conversation) => conversation.shared_id === chat_id)
       let url = 'http://127.0.0.1:8000/api/set_unread/'
       try {
         let response = await fetch(url, {
           method: 'PUT',
           body: JSON.stringify({
-            'chat_id': chat_id
+            'chat_id': unreadChatObject[0].id
           }),
           headers: {'Content-Type': 'application/json'}
         })

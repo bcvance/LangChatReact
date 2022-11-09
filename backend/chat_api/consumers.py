@@ -91,7 +91,7 @@ class ChatConsumer(WebsocketConsumer):
         id = event['id']
 
         self.send(text_data=json.dumps({
-            'type': 'chat',
+            'type': 'chat_message',
             'message': message,
             'message_username': message_username,
             'message_user_id': message_user_id,

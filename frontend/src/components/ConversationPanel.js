@@ -68,7 +68,7 @@ function ConversationPanel() {
                         window.location.reload(true)
                     }
                     // if receiving message from other user, save message and sort conversations
-                    else if (messageData.type === 'chat') {
+                    else if (messageData.type === 'chat_message') {
                         console.log('received_message')
                         saveMessageToLocalStorage(messageData.message_user_id, 
                             messageData.chat_id, 
@@ -77,7 +77,7 @@ function ConversationPanel() {
                         sortConvos(messageData.chat_id)
                         if (!(messageData.chat_id === activeConvo)) {
                             console.log(messageData)
-                            setUnread(messageData.id)
+                            setUnread(messageData.chat_id)
                           }
                     }
                 }
