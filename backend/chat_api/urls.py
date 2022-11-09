@@ -14,5 +14,7 @@ urlpatterns = [
     path('contacts/', views.contacts, name='contacts'),
     path('save_contact/', views.save_contact, name='save_contact'),
     path('manual_chat/', views.manual_chat, name='manual_chat'),
-    path('delete_contact/', views.delete_contact, name='delete_contact')
+    path('delete_contact/', views.delete_contact, name='delete_contact'),
+    path('set_unread/', views.set_unread, name='set_unread'),
+    path('set_read/', views.set_read, name='set_read')
 ]

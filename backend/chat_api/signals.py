@@ -26,3 +26,12 @@ post_save.connect(notify_user, sender=ChatRoom)
 # m2m_changed.connect(notify_user)
 
 
+# whenever a new message is created, update the timestamp for the most recent message for each chat
+def update_last_saved(sender, instance, **kwargs):
+    message = instance
+    chats = message.chats.all()
+    for chat in chats:
+        chat.send_time = timezone.now()
+
+
+

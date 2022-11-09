@@ -124,8 +124,8 @@ def conversations(request):
         chat_info['user'] = chat.user.username
         chat_info['shared_id'] = chat.shared_id
         chat_info['last_saved'] = chat.last_saved.isoformat()
-
         chat_info['other_users'] = [user.username for user in chat.other_users.all()]
+        chat_info['has_unread'] = chat.has_unread
         chats.append(chat_info)
     return Response(chats) 
 
@@ -251,5 +251,23 @@ def save_message(request):
     ChatRoom.objects.filter(shared_id=shared_id).update(last_saved=datetime.now())
 
     return Response({'detail': 'word saved successfully'}, status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+def set_read(request):
+    print(request.data)
+    chat_id = request.data['chat_id']
+    conversation = ChatRoom.objects.get(id=chat_id)
+    conversation.has_unread = False
+    conversation.save()
+    return Response({'detail': 'read updated successfully'})
+
+@api_view(['PUT'])
+def set_unread(request):
+    print(request.data)
+    chat_id = request.data['chat_id']
+    conversation = ChatRoom.objects.get(id=chat_id)
+    conversation.has_unread = True
+    conversation.save()
+    return Response({'detail': 'unread updated successfully'})
     
 

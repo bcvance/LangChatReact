@@ -60,6 +60,7 @@ class ChatConsumer(WebsocketConsumer):
 
         else:
             message = text_data_json['message']
+            unique_chat_id = text_data_json['unique_chat_id']
 
             async_to_sync(self.channel_layer.group_send)(
                 self.room_group_name,
@@ -69,6 +70,7 @@ class ChatConsumer(WebsocketConsumer):
                     'message_user_id': message_user_id,
                     'message': message,
                     'chat_id': self.room_name,
+                    'id': unique_chat_id
                 }
             )
 
@@ -86,13 +88,15 @@ class ChatConsumer(WebsocketConsumer):
         message_username = event['message_username']
         message_user_id = event['message_user_id']
         chat_id = event['chat_id']
+        id = event['id']
 
         self.send(text_data=json.dumps({
             'type': 'chat',
             'message': message,
             'message_username': message_username,
             'message_user_id': message_user_id,
-            'chat_id': chat_id
+            'chat_id': chat_id,
+            'id': id,
         }))
 
     def connection_message(self, event):

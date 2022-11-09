@@ -31,6 +31,7 @@ class ChatRoom(models.Model):
     websocket_url = models.URLField(blank=True, null=True)
     shared_id = models.CharField(max_length=200, blank=True, null=True)
     last_saved = models.DateTimeField(default=datetime.now)
+    has_unread = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         '''On save, update timestamps'''
@@ -43,12 +44,6 @@ class Message(models.Model):
     sender = models.ForeignKey('MyUser', on_delete = models.SET_NULL, null=True, related_name='sender')
     chats = models.ManyToManyField('ChatRoom', related_name='messages')
     send_time = models.DateTimeField(default=datetime.now)
-
-    def save(self, *args, **kwargs):
-        '''On save, update timestamps'''
-        if not self.id:
-            self.send_time = timezone.now()
-            return super(Message, self).save(*args, **kwargs)
 
 class Contact(models.Model):
     user = models.ForeignKey('MyUser', on_delete = models.CASCADE, related_name = 'contacts')

@@ -7,7 +7,14 @@ import MessageBubble from './MessageBubble'
 
 
 function ConversationPanel() {
-    const { conversations, activeConvo, setActiveConvo, webSocketsDict, saveMessageToLocalStorage, saveMessageToDatabase, chatMessages } = useConversations()
+    const { conversations, 
+        activeConvo, 
+        sortConvos, 
+        webSocketsDict, 
+        saveMessageToLocalStorage, 
+        saveMessageToDatabase, 
+        chatMessages,
+        setUnread } = useConversations()
     let thisWebSocket;
     const { activeUser } = useUsers()
     const [message, setMessage] = useState('')
@@ -37,7 +44,8 @@ function ConversationPanel() {
                 message_username: activeUser.username,
                 message_user_id: activeUser.id,
                 shared_id: activeConvoObject.shared_id,
-                other_users: activeConvoObject.other_users
+                other_users: activeConvoObject.other_users,
+                unique_chat_id: activeConvoObject.id,
             })
         )
         saveMessageToDatabase(activeUser.id, activeUser.username, activeConvo, message, activeConvoObject.shared_id, activeConvoObject.other_users)
@@ -47,10 +55,7 @@ function ConversationPanel() {
     
 
     useEffect(() => {
-        // console.log('rerendered')
         currentMessages = (activeConvo in chatMessages) ? chatMessages[activeConvo] : []
-        // console.log(activeConvo)
-        // console.log(currentMessages)
         thisWebSocket = webSocketsDict[activeConvo]
 
 
@@ -58,14 +63,22 @@ function ConversationPanel() {
             for (const convoId in webSocketsDict) {
                 webSocketsDict[convoId].onmessage = (message) => {
                     const messageData = JSON.parse(message.data)
-                    // console.log(messageData)
                     if (messageData.type === 'new_chat_message') {
-                        console.log('got new chat message')
                         // trigger refresh to test first, then do by altering state
                         window.location.reload(true)
                     }
-                    else if (!(messageData.type === 'id_message')) {
-                        saveMessageToLocalStorage(messageData.message_user_id, messageData.chat_id, messageData.message, messageData.shared_id)
+                    // if receiving message from other user, save message and sort conversations
+                    else if (messageData.type === 'chat') {
+                        console.log('received_message')
+                        saveMessageToLocalStorage(messageData.message_user_id, 
+                            messageData.chat_id, 
+                            messageData.message, 
+                            messageData.shared_id)
+                        sortConvos(messageData.chat_id)
+                        if (!(messageData.chat_id === activeConvo)) {
+                            console.log(messageData)
+                            setUnread(messageData.id)
+                          }
                     }
                 }
             }

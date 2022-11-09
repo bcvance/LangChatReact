@@ -92,6 +92,23 @@ export function ConversationsProvider(props) {
       }
     }
 
+    function sortConvos(chat_id) {
+      // update last saved time of relevant chat and sort conversations by last sent message
+      // console.log('called')
+      setConversations((prevConversations => {
+        for (let i=0; i<prevConversations.length; i++) {
+          if (prevConversations[i].shared_id === chat_id) {
+            let mostRecent = prevConversations.splice(i, 1)
+            prevConversations.unshift(mostRecent[0])
+            mostRecent.last_saved = new Date().toISOString()
+            console.log(prevConversations)
+            return prevConversations
+          }
+        }
+        return prevConversations
+      }))
+    }
+
     function addWebSocket(shared_id, user_id, username) {
       setWebSocketsDict(prevWebSockets => {
         if (!(shared_id in prevWebSockets)) {
@@ -139,7 +156,6 @@ export function ConversationsProvider(props) {
           // IMPORTANT: must make deep copy first and THEN alter values on deep copy, 
           // as oppposed to altering prevChatMessages first and then making copy
           const newMessages = {...prevChatMessages}
-          console.log(newMessages)
           newMessages[chat_id] = [...newMessages[chat_id], {content: message, sender: user_id, chat: activeConvo, send_time: date.toISOString(), shared_id: shared_id}]
           return newMessages
         })
@@ -151,17 +167,41 @@ export function ConversationsProvider(props) {
           return newMessages
         })
       }
-      //console.log(chatMessages)
+    }
 
-      // update localStorage
-      // if (chat_id in parsed) {
-      //   parsed[chat_id].push({content: message, sender: user_id})
-      //   localStorage.setItem('chatMessages', JSON.stringify(parsed))
-      // }
-      // else {
-      //   parsed[chat_id] = [{content: message, sender: user_id}]
-      //   localStorage.setItem('chatMessages', JSON.stringify(parsed))
-      // }
+  async function setUnread(chat_id) {
+    console.log('chat id', chat_id)
+      let url = 'http://127.0.0.1:8000/api/set_unread/'
+      try {
+        let response = await fetch(url, {
+          method: 'PUT',
+          body: JSON.stringify({
+            'chat_id': chat_id
+          }),
+          headers: {'Content-Type': 'application/json'}
+        })
+        let data = await response.json()
+        console.log(data)
+      }catch(e) {
+        console.log(e)
+      }
+    }
+
+    async function setRead(chat_id) {
+      let url = 'http://127.0.0.1:8000/api/set_read/'
+      try {
+        let response = await fetch(url, {
+          method: 'PUT',
+          body: JSON.stringify({
+            'chat_id': chat_id
+          }),
+          headers: {'Content-Type': 'application/json'}
+        })
+        let data = await response.json()
+        console.log(data)
+      }catch(e) {
+        console.log(e)
+      }
     }
 
     async function saveMessageToDatabase(userId, userUsername, chatId, content, sharedId, otherUsers) {
@@ -209,7 +249,6 @@ export function ConversationsProvider(props) {
           headers: {'Content-Type': 'application/json'}
         })
         let data = await response.json()
-        console.log(data)
         addConversation(data)
         //saveConversationToLocalStorage(data)
         return data
@@ -240,11 +279,13 @@ export function ConversationsProvider(props) {
       chatMessages: chatMessages,
       setChatMessages: setChatMessages,
       getChatMessages: getChatMessages,
-      manualChat: manualChat
+      manualChat: manualChat,
+      sortConvos: sortConvos,
+      setUnread: setUnread,
+      setRead: setRead,
     }
 
     useEffect(() => {
-      console.log('websocketsdict', webSocketsDict)
       if ((activeConvo === '' && Object.keys(conversations).length > 0)) {
         setActiveConvo(conversations[0].id)
       }

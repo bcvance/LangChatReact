@@ -6,12 +6,22 @@ import { getTimeFormat, getDisplayText } from '../utils/formatters'
 import SaveContactModal from './SaveContactModal'
 
 function Conversations() {
-    const { conversations, setConversations, activeConvo, setActiveConvo, webSocketsDict, addWebSocket, chatMessages, deleteConvo, deleteConvoFromLocalStorage, deleteConvoFromDatabase } = useConversations()
+    const { conversations, 
+      setConversations, 
+      activeConvo, 
+      setActiveConvo, 
+      webSocketsDict, 
+      addWebSocket, 
+      chatMessages, 
+      deleteConvo, 
+      deleteConvoFromLocalStorage, 
+      deleteConvoFromDatabase,
+      setUnread,
+      setRead } = useConversations()
     const { activeUser } = useUsers()
     const [showSaveContactModal, setShowSaveContactModal] = useState(false)
 
     const changeActiveConvo = (id, index) => {
-      console.log('convo changed')
       setActiveConvo(id)
     }
 
@@ -34,6 +44,11 @@ function Conversations() {
       setShowSaveContactModal(true)
     }
 
+    // useEffect(() => {
+    //   const activeConvoObject = conversations.filter((conversation => conversation.shared_id === activeConvo))
+    //   setRead(activeConvoObject[0].id)
+    // }, [activeConvo])
+
   return (
     <div style={{height: '90vh'}} className='d-flex flex-column overflow-auto'>
       <ListGroup variant=''>
@@ -51,7 +66,7 @@ function Conversations() {
             <ListGroup.Item key={conversation.id} onClick={() => changeActiveConvo(conversation.shared_id, index)} className={itemClasses(conversation.shared_id)}>
               {('other_users' in conversation && conversation['other_users'].length > 0) 
               ? <div className='d-flex flex-column'>
-                  <div>
+                  <div style={{fontWeight: conversation.has_unread ? 'bold' : 'normal'}}>
                     <span style={{fontSize: '14px', cursor: 'pointer'}} className='float-start' onClick={() => handleShowSaveContactModal()}>{conversation.other_users.join(', ')}</span>
                     <span style={{fontSize: '14px'}} className={activeConvo === conversation.shared_id ? 'float-end' : 'float-end text-secondary'}>{displayDate}</span>
                   </div>
