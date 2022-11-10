@@ -38,7 +38,7 @@ function ConversationPanel() {
     const handleSendMessage = (e) => {
         const activeConvoObject = getConvoObject(activeConvo)
         thisWebSocket = webSocketsDict[activeConvoObject.shared_id]
-        console.log('message sent')
+        console.log(`message sent to ${activeConvoObject.shared_id}`)
         e.preventDefault()
         thisWebSocket.send(
             JSON.stringify({
@@ -58,6 +58,7 @@ function ConversationPanel() {
     
 
     useEffect(() => {
+        console.log('activeConvo:', activeConvo)
         currentMessages = (activeConvo in chatMessages) ? chatMessages[activeConvo] : []
         thisWebSocket = webSocketsDict[activeConvo]
 
@@ -66,14 +67,17 @@ function ConversationPanel() {
                 for (const convoId in webSocketsDict) {
                     webSocketsDict[convoId].onmessage = async (message) => {
                         const messageData = JSON.parse(message.data)
+                        console.log(messageData.chat_id, activeConvo)
+                        console.log(messageData.shared_id)
                         // when notified of new chat in backend, fetch new conversation data and update state
                         if (messageData.type === 'new_chat_message' && !(conversations.some(conversation => conversation.shared_id === messageData.shared_id))) {
-                            console.log('fetching conversations')
+                            //console.log('fetching conversations')
                             const convos = await getConversations(activeUser.id)
                             setConversations(convos)
                         }
                         // if receiving message from other user, save message and sort conversations
                         else if (messageData.type === 'chat_message') {
+                            console.log('chat_message')
                             saveMessageToLocalStorage(messageData.message_user_id, 
                                 messageData.chat_id, 
                                 messageData.message, 
@@ -90,7 +94,7 @@ function ConversationPanel() {
         newMessageHandler()
         const messageBox = document.getElementById('message-box')
         messageBox.scrollTop = messageBox.scrollHeight
-    }, [])
+    }, [webSocketsDict, activeConvo])
     
   return (
     <div style={{ height: '100vh'}} className='d-flex flex-column'>

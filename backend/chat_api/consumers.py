@@ -12,6 +12,8 @@ class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
+        print(self.room_group_name)
+        print(self.channel_name)
 
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
@@ -85,6 +87,7 @@ class ChatConsumer(WebsocketConsumer):
         }))
 
     def chat_message(self, event):
+        print('chat_message fired')
         message = event['message']
         message_username = event['message_username']
         message_user_id = event['message_user_id']
@@ -106,6 +109,7 @@ class ChatConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({
             'type': 'connection',
             'message': message,
+            'shared_id': self.room_name
         }))
     
     def indiv_message(self, event):

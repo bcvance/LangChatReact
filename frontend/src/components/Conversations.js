@@ -17,7 +17,8 @@ function Conversations() {
       deleteConvoFromLocalStorage, 
       deleteConvoFromDatabase,
       setUnread,
-      setRead } = useConversations()
+      setRead,
+      cancelSearch } = useConversations()
     const { activeUser } = useUsers()
     const [showSaveContactModal, setShowSaveContactModal] = useState(false)
     const activeConvoObject = conversations.filter((conversation) => conversation.shared_id === activeConvo)
@@ -41,6 +42,7 @@ function Conversations() {
       deleteConvoFromLocalStorage(index)
     }
 
+
     const handleShowSaveContactModal = () => {
       setShowSaveContactModal(true)
     }
@@ -49,7 +51,7 @@ function Conversations() {
       if (activeConvoObject.length > 0 && activeConvoObject[0].has_unread) {
         setRead(activeConvo)
       }
-    }, [activeConvo])
+    }, [])
 
   return (
     <div style={{height: '90vh'}} className='d-flex flex-column overflow-auto'>
@@ -83,8 +85,15 @@ function Conversations() {
                     </div>
                   </div>
                 </div>
-              : <div>
-                  <p>Finding partner...</p>
+              : <div d-flex flex-column>
+                  <div>
+                      <p>Finding partner...</p>
+                  </div>
+                  <div className='float-end' onClick={() => cancelSearch(conversation.id, index)}>
+                      <svg style={{cursor: 'pointer'}} xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-lg" viewBox="0 0 16 16">
+                        <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+                      </svg>
+                    </div>
                 </div>}
             </ListGroup.Item>
           )

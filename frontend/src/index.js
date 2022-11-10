@@ -11,7 +11,7 @@ import { useEffect } from 'react';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
+
     <UsersProvider>
       <ConversationsProvider>
         <ContactsProvider>
@@ -19,7 +19,7 @@ root.render(
         </ContactsProvider>
       </ConversationsProvider>
     </UsersProvider>
-  </React.StrictMode>
+
 );
 
 // If you want to start measuring performance in your app, pass a function

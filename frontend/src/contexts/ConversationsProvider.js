@@ -52,11 +52,9 @@ export function ConversationsProvider(props) {
             newConversations = [...newConversations, {id: data.room_id, user: data.user, shared_id: data.shared_id, other_users: data.other_users, has_unread: data.has_unread}]
             newConversations.sort((a, b) => (a.last_saved > b.last_saved ? 1 : -1))
           }
-          // console.log('conversations:',conversations.length)
-          // console.log('newConversations:',newConversations.length)
+
           return newConversations
         })
-        //console.log('before done')
         return 'done'
     }
 
@@ -115,12 +113,31 @@ export function ConversationsProvider(props) {
       }))
     }
 
+    // cancel search for language partner if no partner has yet been found
+    async function cancelSearch(chat_id, index) {
+      let url = 'http://127.0.0.1:8000/api/cancel_search/'
+      try {
+        let result = await fetch(url, {
+          method: 'DELETE',
+          body: JSON.stringify({'chat_id': chat_id}),
+          headers: {'Content-Type': 'application/json'}
+        })
+        let data = await result.json()
+        deleteConvo(index)
+      }catch(e) {
+        console.log(e)
+      }
+    }
+
     function addWebSocket(shared_id, user_id, username) {
+      // console.log(webSocketsDict)
+      // console.log(`adding socket for ${shared_id}`)
       setWebSocketsDict(prevWebSockets => {
-        if (!(shared_id in prevWebSockets)) {
-          prevWebSockets[shared_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${shared_id}/`)
-          // prevWebSockets[shared_id].onopen = (e) => {
-          //   prevWebSockets[shared_id].send(JSON.stringify({
+        let newWebSockets = {...prevWebSockets}
+        if (!(shared_id in newWebSockets)) {
+          newWebSockets[shared_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${shared_id}/`)
+          // newWebsockets[shared_id].onopen = (e) => {
+          //   newWebsockets[shared_id].send(JSON.stringify({
           //     'type': 'id_message',
           //     'user_id': user_id,
           //     'message_username': username,
@@ -128,18 +145,34 @@ export function ConversationsProvider(props) {
           //   }))
           // }
         }
-        return prevWebSockets
+        //console.log(`done adding ${shared_id}`)
+        return newWebSockets
+      })
+    }
+
+    function addWebSockets(convosFromBackend) {
+      console.log('add websockets called')
+      console.log('webSocketsDict', webSocketsDict)
+      setWebSocketsDict(prevWebSockets => {
+        let newWebSockets = {...prevWebSockets}
+        console.log('newWebSockets', newWebSockets)
+        for (let i=0; i<convosFromBackend.length; i++) {
+          let shared_id = convosFromBackend[i].shared_id
+          if (!(shared_id in newWebSockets)) {
+            newWebSockets[shared_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${shared_id}/`)
+          }
+        }
+        return newWebSockets
       })
     }
 
     // add a websocket connection for each user on sign in
     function addUniqueSocket(uuid, user_id, username) {
+      //console.log(`adding socket for ${uuid}`)
       setWebSocketsDict(prevWebSockets => {
         if (!('uniqueSocket' in prevWebSockets)){
-          console.log('beginning', prevWebSockets)
           prevWebSockets['uniqueSocket'] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${uuid}/`)
           prevWebSockets['uniqueSocket'].onopen = (e) => {
-            console.log('sending id message')
             prevWebSockets['uniqueSocket'].send(JSON.stringify({
               'type': 'id_message',
               'user_id': user_id,
@@ -148,7 +181,6 @@ export function ConversationsProvider(props) {
             }))
           }
         }
-        console.log('end', prevWebSockets)
         return prevWebSockets
       })
     }
@@ -303,8 +335,10 @@ export function ConversationsProvider(props) {
       deleteConvoFromDatabase: deleteConvoFromDatabase,
       activeConvo: activeConvo,
       setActiveConvo: setActiveConvo,
+      cancelSearch: cancelSearch,
       webSocketsDict: webSocketsDict,
       addWebSocket: addWebSocket,
+      addWebSockets: addWebSockets,
       addUniqueSocket: addUniqueSocket,
       activeWebSocket: activeWebSocket,
       setActiveWebSocket: setActiveWebSocket,

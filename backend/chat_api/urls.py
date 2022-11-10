@@ -16,5 +16,6 @@ urlpatterns = [
     path('manual_chat/', views.manual_chat, name='manual_chat'),
     path('delete_contact/', views.delete_contact, name='delete_contact'),
     path('set_unread/', views.set_unread, name='set_unread'),
-    path('set_read/', views.set_read, name='set_read')
+    path('set_read/', views.set_read, name='set_read'),
+    path('cancel_search/', views.cancel_search, name='cancel_search'),
 ]

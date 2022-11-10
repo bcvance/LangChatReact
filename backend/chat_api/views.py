@@ -49,6 +49,18 @@ def register_user(request):
         message = {'detail':'User with this email already exists.'}
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['DELETE'])
+def cancel_search(request):
+    '''cancels search for a language partner if no partner has yet been found'''
+    data = request.data
+    print('chat_id:', data['chat_id'])
+    chat = ChatRoom.objects.get(id=data['chat_id'])
+    temp_user = TempUser.objects.filter(room_name=chat).first()
+    chat.delete()
+    temp_user.delete()
+    return Response({'detail': 'user search canceled successfully'})
+
+
 @csrf_exempt
 @api_view(['POST'])
 def chat(request):
