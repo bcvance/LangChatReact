@@ -24,6 +24,7 @@ function Conversations() {
     const activeConvoObject = conversations.filter((conversation) => conversation.shared_id === activeConvo)
 
     const changeActiveConvo = (id, index) => {
+      console.log('changeActiveConvo')
       setActiveConvo(id)
     }
 
@@ -51,7 +52,7 @@ function Conversations() {
       if (activeConvoObject.length > 0 && activeConvoObject[0].has_unread) {
         setRead(activeConvo)
       }
-    }, [])
+    }, [activeConvo])
 
   return (
     <div style={{height: '90vh'}} className='d-flex flex-column overflow-auto'>

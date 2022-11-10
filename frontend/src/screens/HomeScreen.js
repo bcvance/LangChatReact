@@ -29,7 +29,6 @@ function HomeScreen() {
 
   // create websocket connections for all existent conversations
   useEffect(() => {
-    console.log("useEffect called")
     // create initial unique websocket connection for this client so that consumers
     // can interact with client even if client has no chats (and therefore no other websocket connections)
     const uuid = uuidv4()
@@ -41,7 +40,6 @@ function HomeScreen() {
       if (!conversations || conversations.length === 0) {
         setConversations(convosFromBackend) 
       }
-      setActiveConvo(convosFromBackend[0].shared_id)
       localStorage.setItem('conversations', JSON.stringify(convosFromBackend))
       const chatMessagesFromBackend = await getChatMessages(activeUser.id)
       setChatMessages(chatMessagesFromBackend)

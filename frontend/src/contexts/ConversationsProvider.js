@@ -15,6 +15,7 @@ export function ConversationsProvider(props) {
     const [conversations, setConversations] = useLocalStorage('conversations', [])
     const { activeUser } = useUsers()
     const [activeConvo, setActiveConvo] = useState(() => {
+      console.log('resetting state')
       if (Object.keys(conversations).length > 0) {
         return conversations[0].shared_id
       }
@@ -105,7 +106,6 @@ export function ConversationsProvider(props) {
             let mostRecent = prevConversations.splice(i, 1)
             prevConversations.unshift(mostRecent[0])
             mostRecent.last_saved = new Date().toISOString()
-            console.log(prevConversations)
             return prevConversations
           }
         }
@@ -151,11 +151,8 @@ export function ConversationsProvider(props) {
     }
 
     function addWebSockets(convosFromBackend) {
-      console.log('add websockets called')
-      console.log('webSocketsDict', webSocketsDict)
       setWebSocketsDict(prevWebSockets => {
         let newWebSockets = {...prevWebSockets}
-        console.log('newWebSockets', newWebSockets)
         for (let i=0; i<convosFromBackend.length; i++) {
           let shared_id = convosFromBackend[i].shared_id
           if (!(shared_id in newWebSockets)) {
@@ -197,14 +194,14 @@ export function ConversationsProvider(props) {
           // IMPORTANT: must make deep copy first and THEN alter values on deep copy, 
           // as oppposed to altering prevChatMessages first and then making copy
           const newMessages = {...prevChatMessages}
-          newMessages[chat_id] = [...newMessages[chat_id], {content: message, sender: user_id, chat: activeConvo, send_time: date.toISOString(), shared_id: shared_id}]
+          newMessages[chat_id] = [...newMessages[chat_id], {content: message, sender: user_id, chat: chat_id, send_time: date.toISOString(), shared_id: shared_id}]
           return newMessages
         })
       }
       else {
         setChatMessages((prevChatMessages) => {
           const newMessages = {...prevChatMessages}
-          newMessages[chat_id] = [{content: message, sender: user_id, chat: activeConvo, send_time: date.toISOString(), shared_id: shared_id}]
+          newMessages[chat_id] = [{content: message, sender: user_id, chat: chat_id, send_time: date.toISOString(), shared_id: shared_id}]
           return newMessages
         })
       }
@@ -223,7 +220,6 @@ export function ConversationsProvider(props) {
           headers: {'Content-Type': 'application/json'}
         })
         let data = await response.json()
-        console.log(data)
       }catch(e) {
         console.log(e)
       }
@@ -253,7 +249,6 @@ export function ConversationsProvider(props) {
           headers: {'Content-Type': 'application/json'}
         })
         let data = await response.json()
-        console.log(data)
       }catch(e) {
         console.log(e)
       }
@@ -355,6 +350,7 @@ export function ConversationsProvider(props) {
 
     useEffect(() => {
       if ((activeConvo === '' && Object.keys(conversations).length > 0)) {
+        console.log('activeconvo was blank')
         setActiveConvo(conversations[0].id)
       }
     })
