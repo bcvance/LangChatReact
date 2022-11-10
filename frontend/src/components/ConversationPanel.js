@@ -8,13 +8,16 @@ import MessageBubble from './MessageBubble'
 
 function ConversationPanel() {
     const { conversations, 
+        setConversations,
+        getConversations,
         activeConvo, 
         sortConvos, 
         webSocketsDict, 
         saveMessageToLocalStorage, 
         saveMessageToDatabase, 
         chatMessages,
-        setUnread } = useConversations()
+        setUnread,
+        addConversation } = useConversations()
     let thisWebSocket;
     const { activeUser } = useUsers()
     const [message, setMessage] = useState('')
@@ -58,34 +61,36 @@ function ConversationPanel() {
         currentMessages = (activeConvo in chatMessages) ? chatMessages[activeConvo] : []
         thisWebSocket = webSocketsDict[activeConvo]
 
-
-        if (Object.keys(webSocketsDict).length > 0) {
-            for (const convoId in webSocketsDict) {
-                webSocketsDict[convoId].onmessage = (message) => {
-                    const messageData = JSON.parse(message.data)
-                    if (messageData.type === 'new_chat_message') {
-                        // trigger refresh to test first, then do by altering state
-                        window.location.reload(true)
-                    }
-                    // if receiving message from other user, save message and sort conversations
-                    else if (messageData.type === 'chat_message') {
-                        console.log('received_message')
-                        saveMessageToLocalStorage(messageData.message_user_id, 
-                            messageData.chat_id, 
-                            messageData.message, 
-                            messageData.shared_id)
-                        sortConvos(messageData.chat_id)
-                        if (!(messageData.chat_id === activeConvo)) {
-                            console.log(messageData)
-                            setUnread(messageData.chat_id)
-                          }
+        const newMessageHandler = async () => {
+            if (Object.keys(webSocketsDict).length > 0) {
+                for (const convoId in webSocketsDict) {
+                    webSocketsDict[convoId].onmessage = async (message) => {
+                        const messageData = JSON.parse(message.data)
+                        // when notified of new chat in backend, fetch new conversation data and update state
+                        if (messageData.type === 'new_chat_message' && !(conversations.some(conversation => conversation.shared_id === messageData.shared_id))) {
+                            console.log('fetching conversations')
+                            const convos = await getConversations(activeUser.id)
+                            setConversations(convos)
+                        }
+                        // if receiving message from other user, save message and sort conversations
+                        else if (messageData.type === 'chat_message') {
+                            saveMessageToLocalStorage(messageData.message_user_id, 
+                                messageData.chat_id, 
+                                messageData.message, 
+                                messageData.shared_id)
+                            sortConvos(messageData.chat_id)
+                            if (!(messageData.chat_id === activeConvo)) {
+                                setUnread(messageData.chat_id)
+                              }
+                        }
                     }
                 }
             }
         }
+        newMessageHandler()
         const messageBox = document.getElementById('message-box')
         messageBox.scrollTop = messageBox.scrollHeight
-    }, [currentMessages])
+    }, [])
     
   return (
     <div style={{ height: '100vh'}} className='d-flex flex-column'>

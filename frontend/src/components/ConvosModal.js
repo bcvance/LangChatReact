@@ -48,8 +48,6 @@ function ConvosModal({show, setShow}) {
         .then((response) => {
             data = response.data
             console.log(response.data)
-            addConversation(data)
-            // saveConversationToLocalStorage(data)
         })
         .catch((error) => {
             console.log(error)

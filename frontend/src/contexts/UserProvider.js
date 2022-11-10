@@ -19,7 +19,6 @@ export function UsersProvider(props) {
     })
 
     useEffect(() => {
-        console.log(isLoggedIn)
         if ((!isLoggedIn && Object.keys(activeUser).length > 0)) {
             setIsLoggedIn(true)
         }

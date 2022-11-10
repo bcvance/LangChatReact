@@ -20,6 +20,7 @@ function Conversations() {
       setRead } = useConversations()
     const { activeUser } = useUsers()
     const [showSaveContactModal, setShowSaveContactModal] = useState(false)
+    const activeConvoObject = conversations.filter((conversation) => conversation.shared_id === activeConvo)
 
     const changeActiveConvo = (id, index) => {
       setActiveConvo(id)
@@ -44,10 +45,11 @@ function Conversations() {
       setShowSaveContactModal(true)
     }
 
-    // useEffect(() => {
-    //   const activeConvoObject = conversations.filter((conversation => conversation.shared_id === activeConvo))
-    //   setRead(activeConvoObject[0].id)
-    // }, [activeConvo])
+    useEffect(() => {
+      if (activeConvoObject.length > 0 && activeConvoObject[0].has_unread) {
+        setRead(activeConvo)
+      }
+    }, [activeConvo])
 
   return (
     <div style={{height: '90vh'}} className='d-flex flex-column overflow-auto'>

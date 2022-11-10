@@ -43,15 +43,21 @@ export function ConversationsProvider(props) {
     }
 
     function addConversation(data) {
-        setConversations(prevConversations => {
-          let newConversations = [...prevConversations]
+        setConversations((prevConversations) => {
+          let newConversations = prevConversations.map(conversation => {return {...conversation}})
           if (!('other_users' in data)) {
             data.other_users = []
           }
-          newConversations = [...newConversations, {id: data.room_id, user: data.user, shared_id: data.shared_id, other_users: data.other_users, has_unread: data.has_unread}]
-          newConversations.sort((a, b) => (a.last_saved > b.last_saved ? 1 : -1))
+          if (!(conversations.some(conversation => conversation.shared_id === data.shared_id))) {
+            newConversations = [...newConversations, {id: data.room_id, user: data.user, shared_id: data.shared_id, other_users: data.other_users, has_unread: data.has_unread}]
+            newConversations.sort((a, b) => (a.last_saved > b.last_saved ? 1 : -1))
+          }
+          // console.log('conversations:',conversations.length)
+          // console.log('newConversations:',newConversations.length)
           return newConversations
         })
+        //console.log('before done')
+        return 'done'
     }
 
     function saveConversationToLocalStorage(data) {
@@ -113,14 +119,14 @@ export function ConversationsProvider(props) {
       setWebSocketsDict(prevWebSockets => {
         if (!(shared_id in prevWebSockets)) {
           prevWebSockets[shared_id] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${shared_id}/`)
-          prevWebSockets[shared_id].onopen = (e) => {
-            prevWebSockets[shared_id].send(JSON.stringify({
-              'type': 'id_message',
-              'user_id': user_id,
-              'message_username': username,
-              'message_user_id': user_id
-            }))
-          }
+          // prevWebSockets[shared_id].onopen = (e) => {
+          //   prevWebSockets[shared_id].send(JSON.stringify({
+          //     'type': 'id_message',
+          //     'user_id': user_id,
+          //     'message_username': username,
+          //     'message_user_id': user_id
+          //   }))
+          // }
         }
         return prevWebSockets
       })
@@ -130,8 +136,10 @@ export function ConversationsProvider(props) {
     function addUniqueSocket(uuid, user_id, username) {
       setWebSocketsDict(prevWebSockets => {
         if (!('uniqueSocket' in prevWebSockets)){
+          console.log('beginning', prevWebSockets)
           prevWebSockets['uniqueSocket'] = new W3CWebSocket(`ws://127.0.0.1:8000/ws/socket-server/${uuid}/`)
           prevWebSockets['uniqueSocket'].onopen = (e) => {
+            console.log('sending id message')
             prevWebSockets['uniqueSocket'].send(JSON.stringify({
               'type': 'id_message',
               'user_id': user_id,
@@ -140,6 +148,7 @@ export function ConversationsProvider(props) {
             }))
           }
         }
+        console.log('end', prevWebSockets)
         return prevWebSockets
       })
     }
@@ -170,7 +179,7 @@ export function ConversationsProvider(props) {
     }
 
   async function setUnread(chat_id) {
-    console.log('chat id', chat_id)
+    // update has_unread attribute of chat instance in backend
     const unreadChatObject = conversations.filter((conversation) => conversation.shared_id === chat_id)
       let url = 'http://127.0.0.1:8000/api/set_unread/'
       try {
@@ -186,15 +195,28 @@ export function ConversationsProvider(props) {
       }catch(e) {
         console.log(e)
       }
+      // update state
+      setConversations((prevConversations) => {
+        let newConversations = prevConversations.map(conversation => {return {...conversation}})
+        for (let i=0; i<newConversations.length; i++) {
+          if (newConversations[i].shared_id === chat_id) {
+            newConversations[i].has_unread = true
+            return newConversations
+          }
+        }
+        return newConversations
+      })
     }
 
     async function setRead(chat_id) {
+      // update has_unread attribute of chat instance in backend
+      const readChatObject = conversations.filter((conversation) => conversation.shared_id === chat_id)
       let url = 'http://127.0.0.1:8000/api/set_read/'
       try {
         let response = await fetch(url, {
           method: 'PUT',
           body: JSON.stringify({
-            'chat_id': chat_id
+            'chat_id': readChatObject[0].id
           }),
           headers: {'Content-Type': 'application/json'}
         })
@@ -203,6 +225,17 @@ export function ConversationsProvider(props) {
       }catch(e) {
         console.log(e)
       }
+      // update state
+      setConversations((prevConversations) => {
+        let newConversations = prevConversations.map(conversation => {return {...conversation}})
+        for (let i=0; i<newConversations.length; i++) {
+          if (newConversations[i].shared_id === chat_id) {
+            newConversations[i].has_unread = false
+            return newConversations
+          }
+        }
+        return newConversations
+      })
     }
 
     async function saveMessageToDatabase(userId, userUsername, chatId, content, sharedId, otherUsers) {

@@ -257,17 +257,16 @@ def set_read(request):
     print(request.data)
     chat_id = request.data['chat_id']
     conversation = ChatRoom.objects.get(id=chat_id)
-    conversation.has_unread = False
-    conversation.save()
+    ChatRoom.objects.filter(id=chat_id).update(has_unread=False)
+
     return Response({'detail': 'read updated successfully'})
 
 @api_view(['PUT'])
 def set_unread(request):
     print(request.data)
     chat_id = request.data['chat_id']
-    conversation = ChatRoom.objects.get(id=chat_id)
-    conversation.has_unread = True
-    conversation.save()
+    ChatRoom.objects.filter(id=chat_id).update(has_unread=True)
+
     return Response({'detail': 'unread updated successfully'})
     
 

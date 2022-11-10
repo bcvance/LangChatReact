@@ -31,7 +31,7 @@ class ChatRoom(models.Model):
     websocket_url = models.URLField(blank=True, null=True)
     shared_id = models.CharField(max_length=200, blank=True, null=True)
     last_saved = models.DateTimeField(default=datetime.now)
-    has_unread = models.BooleanField(default=False)
+    has_unread = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         '''On save, update timestamps'''
