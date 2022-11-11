@@ -15,6 +15,8 @@ def notify_user(sender, instance, **kwargs):
     # user_group_name is a group containing only the user whose username is contained in it
     # by sending a message to this group, only that one user will receive it 
     user_group_name = f'user_{chat.user.username}'
+    room_group_name = f'chat_{chat.shared_id}'
+    print(room_group_name)
     serializer = ChatRoomSerializer(chat)
     chat_data = serializer.data
     chat_data['type'] = 'new_chat_message'
@@ -25,11 +27,19 @@ def notify_user(sender, instance, **kwargs):
         user_group_name,
         {
             'type': 'new_chat_message',
-            "room_id": chat.id,
             "shared_id": chat.shared_id,
             # get all users who are in a chatroom with the given shared_id
-            "user": chat.user.username,
-            "other_users": [user.username for user in chat.other_users.all()],
+            "last_saved": chat.last_saved.isoformat(),
+            "websocket": str(chat.websocket_url)
+        }
+    )
+
+    async_to_sync(channel_layer.group_send)(
+        room_group_name,
+        {
+            'type': 'new_chat_message',
+            "shared_id": chat.shared_id,
+            # get all users who are in a chatroom with the given shared_id
             "last_saved": chat.last_saved.isoformat(),
             "websocket": str(chat.websocket_url)
         }

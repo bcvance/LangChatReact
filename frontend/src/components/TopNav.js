@@ -11,18 +11,11 @@ function TopNav() {
 
     const handleLog = () => {
         if (isLoggedIn) {
-            console.log('14 executed')
             setIsLoggedIn(false)
-            console.log('16 executed')
             localStorage.setItem('user', {})
-            console.log(localStorage.getItem('user'))
-            console.log('18 executed')
             localStorage.setItem('conversations', [])
-            console.log(localStorage.getItem('conversations'))
-            console.log('20 executed')
             localStorage.setItem('chatMessages', {})
-            console.log(localStorage.getItem('chatMessages'))
-            console.log('22 executed')
+            localStorage.setItem('contacts', [])
             setActiveUser({})
             setConversations([])
             setChatMessages({})

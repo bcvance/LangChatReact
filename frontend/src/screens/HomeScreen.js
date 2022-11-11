@@ -18,17 +18,19 @@ function HomeScreen() {
       webSocketsDict, 
       setConversations, 
       getConversations, 
+      chatMessages,
       getChatMessages, 
       setChatMessages, 
       setActiveConvo, 
       addUniqueSocket } = useConversations()
-  const { getContactsFromDatabase, setContacts } = useContacts()
+  const { contacts, getContactsFromDatabase, setContacts } = useContacts()
   const navigate = useNavigate()
   
   
 
   // create websocket connections for all existent conversations
   useEffect(() => {
+    console.log('chatMessages', chatMessages)
     // create initial unique websocket connection for this client so that consumers
     // can interact with client even if client has no chats (and therefore no other websocket connections)
     const uuid = uuidv4()
@@ -37,26 +39,29 @@ function HomeScreen() {
     async function getData() {
       // get all conversations containing logged in user
       const convosFromBackend = await getConversations(activeUser.id)
-      if (!conversations || conversations.length === 0) {
-        setConversations(convosFromBackend) 
-      }
+      setConversations(convosFromBackend)
+      console.log('fired')
+      addWebSockets(convosFromBackend) 
       localStorage.setItem('conversations', JSON.stringify(convosFromBackend))
+      
+      
+      console.log('getting chat messages')
       const chatMessagesFromBackend = await getChatMessages(activeUser.id)
       setChatMessages(chatMessagesFromBackend)
       localStorage.setItem('chatMessages', JSON.stringify(chatMessagesFromBackend))
+      
       // open all websockets
     //   convosFromBackend.map((conversation, index) => {
     //     addWebSocket(conversation.shared_id, activeUser.id, activeUser.username)
     // }, [])
-      addWebSockets(convosFromBackend)
       // get contacts from backend and set state and local storage with contacts
       const contactsFromBackend =  await getContactsFromDatabase(activeUser.id)
-
       setContacts(contactsFromBackend.contacts)
       localStorage.setItem('contacts', JSON.stringify(contactsFromBackend.contacts))
+      
   }
   getData()
-}, [conversations])
+}, [])
 
   return (
     <div className="HomeScreen">

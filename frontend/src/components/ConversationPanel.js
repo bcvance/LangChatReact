@@ -12,12 +12,14 @@ function ConversationPanel() {
         getConversations,
         activeConvo, 
         sortConvos, 
-        webSocketsDict, 
+        webSocketsDict,
+        addWebSocket, 
         saveMessageToLocalStorage, 
         saveMessageToDatabase, 
         chatMessages,
         setUnread,
-        addConversation } = useConversations()
+        getChatMessages,
+        setChatMessages, } = useConversations()
     let thisWebSocket;
     const { activeUser } = useUsers()
     const [message, setMessage] = useState('')
@@ -66,10 +68,14 @@ function ConversationPanel() {
                     webSocketsDict[convoId].onmessage = async (message) => {
                         const messageData = JSON.parse(message.data)
                         // when notified of new chat in backend, fetch new conversation data and update state
-                        if (messageData.type === 'new_chat_message' && !(conversations.some(conversation => conversation.shared_id === messageData.shared_id))) {
+                        if (messageData.type === 'new_chat_message') {
                             const convos = await getConversations(activeUser.id)
+                            const messages = await getChatMessages(activeUser.id)
                             setConversations(convos)
+                            setChatMessages(messages)
+                            addWebSocket(messageData.shared_id)
                         }
+
                         // if receiving message from other user, save message and sort conversations
                         else if (messageData.type === 'chat_message') {
                             saveMessageToLocalStorage(messageData.message_user_id, 
@@ -88,7 +94,7 @@ function ConversationPanel() {
         newMessageHandler()
         const messageBox = document.getElementById('message-box')
         messageBox.scrollTop = messageBox.scrollHeight
-    }, [webSocketsDict, activeConvo])
+    })
     
   return (
     <div style={{ height: '100vh'}} className='d-flex flex-column'>

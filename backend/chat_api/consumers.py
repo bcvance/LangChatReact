@@ -123,17 +123,12 @@ class ChatConsumer(WebsocketConsumer):
         }))
 
     def new_chat_message(self, event):
-        print('new_chat_message fired')
-        print(self.channel_name)
         # notify all users in chat that new chat instance has been generated for at
         # least one user in chat. will trigger api call to fetch new convo information
         self.send(text_data=json.dumps({
             "type": 'new_chat_message',
-            "room_id": event['room_id'],
             "shared_id": str(event['shared_id']),
             # get all users who are in a chatroom with the given shared_id
-            "user": event['user'],
-            "other_users": event['other_users'],
             "last_saved": event['last_saved'],
         }))
 

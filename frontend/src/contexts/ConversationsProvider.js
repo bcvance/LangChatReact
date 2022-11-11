@@ -129,7 +129,7 @@ export function ConversationsProvider(props) {
       }
     }
 
-    function addWebSocket(shared_id, user_id, username) {
+    function addWebSocket(shared_id) {
       // console.log(webSocketsDict)
       // console.log(`adding socket for ${shared_id}`)
       setWebSocketsDict(prevWebSockets => {
@@ -185,9 +185,11 @@ export function ConversationsProvider(props) {
     function saveMessageToLocalStorage(user_id, chat_id, message, shared_id) {
       let parsed = JSON.parse(localStorage.getItem('chatMessages'))
       const date = new Date()
-
+      // console.log('chat_id', chat_id)
+      // console.log('chatMessages', chatMessages)
       // update state
       if (chat_id in chatMessages) {
+        console.log('if')
         setChatMessages((prevChatMessages) => {
           // create deep copy of prevChatMessages so that state change is registered and 
           // child components rerender
@@ -199,6 +201,7 @@ export function ConversationsProvider(props) {
         })
       }
       else {
+        console.log('else')
         setChatMessages((prevChatMessages) => {
           const newMessages = {...prevChatMessages}
           newMessages[chat_id] = [{content: message, sender: user_id, chat: chat_id, send_time: date.toISOString(), shared_id: shared_id}]

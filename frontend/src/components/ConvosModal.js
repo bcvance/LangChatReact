@@ -92,16 +92,18 @@ function ConvosModal({show, setShow}) {
                         </Form>
                     </Tab.Pane>
                     <Tab.Pane eventKey='myContacts'>
-                        <Form onSubmit={() => manualChat(checkedContacts)}>
-                            <Form.Group className='mb-3' controlId='selectUsers'>
-                                {contacts.map((username, index) => (
-                                    <div key={index} className='mb-3'>
-                                        <Form.Check type='checkbox' label={username} value={username} onChange={(e) => updateChecked(e)} />
-                                    </div>
-                                ))}
-                            </Form.Group>
-                            <Button as='input' type='submit' value='Create conversation'></Button>
-                        </Form>
+                        {typeof contacts !== 'undefined' && contacts.length > 0 && (
+                            <Form onSubmit={() => manualChat(checkedContacts)}>
+                                <Form.Group className='mb-3' controlId='selectUsers'>
+                                    {contacts.map((username, index) => (
+                                        <div key={index} className='mb-3'>
+                                            <Form.Check type='checkbox' label={username} value={username} onChange={(e) => updateChecked(e)} />
+                                        </div>
+                                    ))}
+                                </Form.Group>
+                                <Button as='input' type='submit' value='Create conversation'></Button>
+                            </Form>
+                        )}
                     </Tab.Pane>
                 </Tab.Content>
             </ModalBody>
