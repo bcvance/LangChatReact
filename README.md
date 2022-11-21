@@ -19,7 +19,7 @@ Using the application:
     
 *   On login, you'll be greeted by the chat client shown below. Here you will have access to all of your chats and contacts, as well as the ability to match with new language partners and create new group chats with users in your contacts.
     
-    ![alt text]((https://github.com/bcvance/LangChatReact/blob/dev/backend/chat_api/readme_media/langchat_login.gif))
+    ![alt text](https://github.com/bcvance/LangChatReact/blob/dev/backend/chat_api/readme_media/langchat_login.gif)
 
 ### Finding new language partners:
 
