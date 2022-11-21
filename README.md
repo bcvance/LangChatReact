@@ -36,8 +36,16 @@ Using the application:
 
 Stack/technology information:
 -----------------------------
-
-The backend for this application was built using Django, including Django Channels for Websocket functionality. The frontend was built with React, using the React Context API for state management.
+**Backend:**
+* Django
+    - Django Channels (Websocket functionality)
+    - Django Signals (For notifying frontend of changes in the database)
+* PostgreSQL
+**Frontend**
+* React
+    - React Contexts (state management)
+    - React Router
+* React Bootstrap
 
 In the works:
 -------------
