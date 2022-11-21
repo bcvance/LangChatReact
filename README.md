@@ -42,7 +42,7 @@ Stack/technology information:
     - Django Signals (For notifying frontend of changes in the database)
 * PostgreSQL
 
-**Frontend**
+**Frontend:**
 * React
     - React Contexts (state management)
     - React Router
