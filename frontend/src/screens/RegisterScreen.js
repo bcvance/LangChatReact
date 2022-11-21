@@ -79,10 +79,11 @@ function RegisterScreen() {
 
   return (
     <Container className='d-flex flex-column align-items-center' style={{height:'100vh'}}>
+      <h2 className='my-3' style={{color: '#325d88', fontWeight: 'bold'}}>LangChat</h2>
       <div style={{margin: 'auto'}} className='d-flex flex-column align-items-center'>
       <Card style={{ width: '25rem', margin: 'auto'}} className='align-middle'>
             <Card.Body>
-              <Card.Title><h5 className='text-center'>Login</h5></Card.Title>
+              <Card.Title><h5 className='text-center'>Register</h5></Card.Title>
               {(error.length > 0) && <Message variant='danger'>{error}</Message>}
                 <Form onSubmit={handleRegister}>
                     <Form.Group className='m-3'>

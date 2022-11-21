@@ -110,7 +110,7 @@ function ConversationPanel() {
                 <Form className='' style={{width: '100%'}} onSubmit={handleSendMessage}>
                     <Row className='mx-1 my-1'>
                         <Col style={{flexGrow: '11'}} className='m-auto'>
-                            <Form.Control value={message} className='' style={{borderRadius: '40px'}} type='text' name='message' placeholder='Type message here.' onChange={(e) => updateMessage(e)} />
+                            <Form.Control value={message} className='' style={{borderRadius: '40px'}} type='text' autoComplete='off' name='message' placeholder='Type message here.' onChange={(e) => updateMessage(e)} />
                         </Col>
                         <Col style={{flexGrow: '1'}}>
                             <Button type='submit'>Send</Button>

@@ -60,6 +60,7 @@ function LoginScreen() {
 
   return(
     <Container className='d-flex flex-column align-items-center' style={{height:'100vh'}}>
+      <h2 className='my-3' style={{color: '#325d88', fontWeight: 'bold'}}>LangChat</h2>
       <div style={{margin: 'auto'}} className='d-flex flex-column align-items-center'>
       <Card style={{ width: '25rem'}} className='align-middle'>
             <Card.Body>
