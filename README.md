@@ -19,7 +19,7 @@ Using the application:
     
 *   On login, you'll be greeted by the chat client shown below. Here you will have access to all of your chats and contacts, as well as the ability to match with new language partners and create new group chats with users in your contacts.
     
-    ![](./media/langchat_login.gif)
+    ![alt text]((https://github.com/bcvance/LangChatReact/blob/dev/backend/chat_api/readme_media/langchat_login.gif))
 
 ### Finding new language partners:
 
@@ -29,10 +29,10 @@ Using the application:
     
 3.  If there is an active user who knows the language you are learning who is learning the language that you know, LangChat will match you and create a chat instance. Otherwise, you will see "Finding partner..." until one is found or you cancel your search.
     
-    ![](./media/partner_match.gif)
+    ![alt text]((https://github.com/bcvance/LangChatReact/blob/dev/backend/chat_api/readme_media/partner_match.gif))
 4.  Save users to contacts by clicking on their username. Once in your contacts, users can be added to group chats.
     
-    ![](media/save_contact.gif)
+    ![alt text]((https://github.com/bcvance/LangChatReact/blob/dev/backend/chat_api/readme_media/save_contact.gif))
 
 Stack/technology information:
 -----------------------------
