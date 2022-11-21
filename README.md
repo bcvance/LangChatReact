@@ -41,6 +41,7 @@ Stack/technology information:
     - Django Channels (Websocket functionality)
     - Django Signals (For notifying frontend of changes in the database)
 * PostgreSQL
+
 **Frontend**
 * React
     - React Contexts (state management)
