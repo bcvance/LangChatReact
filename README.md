@@ -1,7 +1,7 @@
 **LangChat**
 ============
 
-LangChat is a live chat client designed to make finding a compatible language partner fast and convenient. Code for this project can be found [here](https://github.com/bcvance/LangChatReact).
+LangChat is a live chat client designed to make finding a compatible language partner fast and convenient.
 
 Features:
 ---------
